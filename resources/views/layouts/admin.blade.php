@@ -468,8 +468,7 @@
     <script src="{{ asset('assets/admin/js/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/admin/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('assets/admin/js/bootstrap-select.min.js') }}"></script>   
-    <script src="{{ asset('assets/admin/js/sweetalert.min.js') }}"></script>    
-    <script src="{{ asset('assets/admin/js/apexcharts/apexcharts.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>    <script src="{{ asset('assets/admin/js/apexcharts/apexcharts.js') }}"></script>
     <script src="{{ asset('assets/admin/js/main.js') }}"></script>
     <script>
         (function ($) {

@@ -68,16 +68,26 @@
                                                             <td><a href="#" target="_blank">0</a></td>
                                                             <td>
                                                                 <div class="list-icon-function">
-                                                                    <a href="#">
+                                                                    <a href="{{ route('admin.edit_brand',['id' => $brand->id]) }}" class="edit">
                                                                         <div class="item edit">
                                                                             <i class="icon-edit-3"></i>
                                                                         </div>
                                                                     </a>
-                                                                    <form action="#" method="POST">
+                                                                    {{-- <form action="{{ route('admin.delete_brand',['id' => $brand->id]) }}" method="POST">
+                                                                        @csrf
+                                                                        @method('DELETE')
                                                                         <div class="item text-danger delete">
                                                                             <i class="icon-trash-2"></i>
                                                                         </div>
+                                                                    </form> --}}
+                                                                    <form action="{{ route('admin.delete_brand', ['id' => $brand->id]) }}" method="POST" class="d-inline delete-form">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button type="submit" class="btn btn-link text-danger p-0 m-0 delete-btn">
+                                                                            <i class="icon-trash-2"></i>
+                                                                        </button>
                                                                     </form>
+
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -94,3 +104,27 @@
                             </div>
                         </div>
 @endsection
+@push('scripts')
+<script>
+    $(document).on('click', '.delete-btn', function(e) {
+    e.preventDefault();
+    let form = $(this).closest('form');
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You will not be able to recover this brand!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Delete",
+        cancelButtonText: "Cancel"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+});
+
+</script>
+@endpush
