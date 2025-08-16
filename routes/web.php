@@ -16,11 +16,20 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth', AuthAdmin::class])->group(function () {
-    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
-    Route::get('/admin/brands', [AdminController::class, 'brands'])->name('admin.brands');
-    Route::get('/admin/brands/add-brand', [AdminController::class, 'add_brand'])->name('admin.add_brand');
-    Route::post('/admin/brands/store-brand', [AdminController::class, 'store_brand'])->name('admin.store_brand');
-    Route::get('/admin/brands/edit-brand/{id}', [AdminController::class, 'edit_brand'])->name('admin.edit_brand');
-    Route::put('/admin/brands/update-brand', [AdminController::class, 'update_brand'])->name('admin.update_brand');
-    Route::delete('/admin/brands/{id}/delete', [AdminController::class, 'delete_brand'])->name('admin.delete_brand');
-});
+ // Admin routes
+    //Brands management routes   
+        Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+        Route::get('/admin/brands', [AdminController::class, 'brands'])->name('admin.brands');
+        Route::get('/admin/brands/add-brand', [AdminController::class, 'add_brand'])->name('admin.add_brand');
+        Route::post('/admin/brands/store-brand', [AdminController::class, 'store_brand'])->name('admin.store_brand');
+        Route::get('/admin/brands/edit-brand/{id}', [AdminController::class, 'edit_brand'])->name('admin.edit_brand');
+        Route::put('/admin/brands/update-brand', [AdminController::class, 'update_brand'])->name('admin.update_brand');
+        Route::delete('/admin/brands/{id}/delete', [AdminController::class, 'delete_brand'])->name('admin.delete_brand');
+    // Categories management routes
+        Route::get('/admin/categories', [AdminController::class, 'categories'])->name('admin.categories');
+        Route::get('/admin/category/add', [AdminController::class, 'add_category'])->name('admin.add_category');
+        Route::post('/admin/category/store', [AdminController::class, 'store_category'])->name('admin.store_category');
+        Route::get('/admin/category/{id}/edit', [AdminController::class, 'edit_category'])->name('admin.edit_category');
+        Route::put('/admin/category/update', [AdminController::class, 'update_category'])->name('admin.update_category');
+        Route::delete('/admin/category/{id}/delete', [AdminController::class, 'delete_category'])->name('admin.delete_category');
+    });
