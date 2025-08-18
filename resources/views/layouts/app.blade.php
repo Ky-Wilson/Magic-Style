@@ -270,7 +270,8 @@
 
       <div class="logo">
         <a href="{{route('home.index')}}">
-          <img src="{{ asset('assets/images/logo.png') }}" alt="Uomo" class="logo__image d-block" />
+          Magic Style
+          {{-- <img src="{{ asset('assets/images/logo.png') }}" alt="Uomo" class="logo__image d-block" /> --}}
         </a>
       </div>
 
@@ -390,7 +391,9 @@
       <div class="header-desk header-desk_type_1">
         <div class="logo">
           <a href="{{route('home.index')}}">
-            <img src="{{ asset('assets/images/logo.png') }}" alt="Uomo" class="logo__image d-block" />
+            Magic Style
+            {{-- Uncomment the line below to use a logo image --}}
+            {{-- <img src="{{ asset('assets/images/logo.png') }}" alt="Uomo" class="logo__image d-block" /> --}}
           </a>
         </div>
 
