@@ -43,62 +43,52 @@
               </thead>
               <tbody>
                 @foreach($items as $item)
-                  <tr>
-                  <td>
-                    <div class="shopping-cart__product-item">
-                      <img loading="lazy" src="{{ asset('uploads/products/thumbnails') }}/{{ $item->model->image }}" width="120" height="120" alt="" />
-                    </div>
-                  </td>
-                  <td>
-                    <div class="shopping-cart__product-item__detail">
-                      <h4>{{ $item->name }}</h4>
-                      <ul class="shopping-cart__product-item__options">
-                        <li>Color: Yellow</li>
-                        <li>Size: L</li>
-                      </ul>
-                    </div>
-                  </td>
-                  <td>
-                    <span class="shopping-cart__product-price">${{ $item->price }}</span>
-                  </td>
-                  <td>
-                    <div class="qty-control position-relative">
-                      <input type="number" name="quantity" value="{{ $item->qty }}" min="1" class="qty-control__number text-center">
-                      <form method="POST" action="{{ route('cart.decrease_quantity', ['rowid' => $item->rowId]) }}">
-                          @csrf
-                          @method('PUT')
-                          <div class="qty-control__reduce">-</div>
-                      </form>
-                      <form method="POST" action="{{ route('cart.increase_quantity', ['rowid' => $item->rowId]) }}">
-                          @csrf
-                          @method('PUT')
-                          <div class="qty-control__increase">+</div>
-                      </form>
-                      
-                    </div>
-                  </td>
-                  <td>
-                    <span class="shopping-cart__subtotal">${{ $item->subTotal() }}</span>
-                  </td>
-                  <td>
-                    <a href="#" class="remove-cart">
-                      <svg width="10" height="10" viewBox="0 0 10 10" fill="#767676" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M0.259435 8.85506L9.11449 0L10 0.885506L1.14494 9.74056L0.259435 8.85506Z" />
-                        <path d="M0.885506 0.0889838L9.74057 8.94404L8.85506 9.82955L0 0.97449L0.885506 0.0889838Z" />
-                      </svg>
-                    </a>
-                  </td>
-                </tr>
+                  <tr data-rowid="{{ $item->rowId }}">
+                    <td>
+                      <div class="shopping-cart__product-item">
+                        <img loading="lazy" src="{{ asset('uploads/products/thumbnails') }}/{{ $item->model->image }}" width="120" height="120" alt="" />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="shopping-cart__product-item__detail">
+                        <h4>{{ $item->name }}</h4>
+                        <ul class="shopping-cart__product-item__options">
+                          <li>Color: Yellow</li>
+                          <li>Size: L</li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="shopping-cart__product-price">${{ $item->price }}</span>
+                    </td>
+                    <td>
+                      <div class="qty-control position-relative">
+                        <input type="number" name="quantity" value="{{ $item->qty }}" min="1" class="qty-control__number text-center" readonly>
+                        <div class="qty-control__reduce" onclick="updateQuantity('{{ $item->rowId }}', 'decrease')">-</div>
+                        <div class="qty-control__increase" onclick="updateQuantity('{{ $item->rowId }}', 'increase')">+</div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="shopping-cart__subtotal">${{ $item->subTotal() }}</span>
+                    </td>
+                    <td>
+                      <div class="remove-cart" onclick="removeItem('{{ $item->rowId }}')">
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="#767676" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M0.259435 8.85506L9.11449 0L10 0.885506L1.14494 9.74056L0.259435 8.85506Z" />
+                          <path d="M0.885506 0.0889838L9.74057 8.94404L8.85506 9.82955L0 0.97449L0.885506 0.0889838Z" />
+                        </svg>
+                      </div>
+                    </td>
+                  </tr>
                 @endforeach
               </tbody>
             </table>
             <div class="cart-table-footer">
               <form action="#" class="position-relative bg-body">
                 <input class="form-control" type="text" name="coupon_code" placeholder="Coupon Code">
-                <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4" type="submit"
-                  value="APPLY COUPON">
+                <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4" type="submit" value="APPLY COUPON">
               </form>
-              <button class="btn btn-light">UPDATE CART</button>
+              <button class="btn btn-light" onclick="clearCart()">CLEAR CART</button>
             </div>
           </div>
           <div class="shopping-cart__totals-wrapper">
@@ -109,7 +99,7 @@
                   <tbody>
                     <tr>
                       <th>Subtotal</th>
-                      <td>${{ Cart::instance('cart')->subtotal() }}</td>
+                      <td id="cart-subtotal">${{ Cart::instance('cart')->subtotal() }}</td>
                     </tr>
                     <tr>
                       <th>Shipping</th>
@@ -117,11 +107,11 @@
                     </tr>
                     <tr>
                       <th>VAT</th>
-                      <td>${{ Cart::instance('cart')->tax() }}</td>
+                      <td id="cart-tax">${{ Cart::instance('cart')->tax() }}</td>
                     </tr>
                     <tr>
                       <th>Total</th>
-                      <td>${{ Cart::instance('cart')->total() }}</td>
+                      <td id="cart-total">${{ Cart::instance('cart')->total() }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -136,10 +126,9 @@
         @else
           <div class="row">
             <div class="col-md-12 text-center pt-5 bp-5">
-              <p>No item found in your cart</p>
-              <a href="{{ route('shop.index') }}" class="btn btn-info">Continue Shopping</a>
+              <p>item no found</p>
+              <a href="{{ route('shop.index') }}" class="btn btn-info">Continue</a>
             </div>
-
           </div>
         @endif
       </div>
@@ -148,27 +137,93 @@
 @endsection
 @push('scripts')
   <script>
-    $(function(){
-      $(".qty-control__increase").on('click', function(){
-        $(this).closest('form').submit();
-      });
-      $(".qty-control__reduce").on('click', function(){
-        $(this).closest('form').submit();
-      });
-    })
-    /* document.querySelectorAll('.qty-control__reduce').forEach(button => {
-      button.addEventListener('click', function(event) {
-        event.preventDefault();
-        this.closest('form').submit();
-      });
-    });
+    async function updateQuantity(rowId, action) {
+      try {
+        const response = await fetch(`/cart/${action}-quantity/${rowId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+          }
+        });
+        const data = await response.json();
+        if (data.success) {
+          const row = document.querySelector(`tr[data-rowid="${rowId}"]`);
+          row.querySelector('.qty-control__number').value = data.quantity;
+          row.querySelector('.shopping-cart__subtotal').textContent = `$${data.subtotal}`;
+          document.getElementById('cart-subtotal').textContent = `$${data.cartSubtotal}`;
+          document.getElementById('cart-tax').textContent = `$${data.cartTax}`;
+          document.getElementById('cart-total').textContent = `$${data.cartTotal}`;
+        } else {
+          alert(data.message || 'Erreur lors de la mise à jour de la quantité');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert('Une erreur s\'est produite lors de la mise à jour de la quantité');
+      }
+    }
 
-    document.querySelectorAll('.qty-control__increase').forEach(button => {
-      button.addEventListener('click', function(event) {
-        event.preventDefault();
-        this.closest('form').submit();
-      });
-    }); */
+    async function removeItem(rowId) {
+      if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) return;
+      try {
+        const response = await fetch(`/cart/remove/${rowId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+          }
+        });
+        const data = await response.json();
+        if (data.success) {
+          const row = document.querySelector(`tr[data-rowid="${rowId}"]`);
+          row.remove();
+          document.getElementById('cart-subtotal').textContent = `$${data.cartSubtotal}`;
+          document.getElementById('cart-tax').textContent = `$${data.cartTax}`;
+          document.getElementById('cart-total').textContent = `$${data.cartTotal}`;
+          if (data.cartCount === 0) {
+            document.querySelector('.shopping-cart').innerHTML = `
+              <div class="row">
+                <div class="col-md-12 text-center pt-5 bp-5">
+                  <p>Aucun article dans votre panier</p>
+                  <a href="${document.querySelector('.btn-info')?.href || '{{ route('shop.index') }}'}" class="btn btn-info">Continuer vos achats</a>
+                </div>
+              </div>`;
+          }
+        } else {
+          alert(data.message || 'Erreur lors de la suppression de l\'article');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert('Une erreur s\'est produite lors de la suppression de l\'article');
+      }
+    }
+
+    async function clearCart() {
+      if (!confirm('Êtes-vous sûr de vouloir vider le panier ?')) return;
+      try {
+        const response = await fetch('/cart/remove-all', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+          }
+        });
+        const data = await response.json();
+        if (data.success) {
+          document.querySelector('.shopping-cart').innerHTML = `
+            <div class="row">
+              <div class="col-md-12 text-center pt-5 bp-5">
+                <p>Aucun article dans votre panier</p>
+                <a href="${document.querySelector('.btn-info')?.href || '{{ route('shop.index') }}'}" class="btn btn-info">Continuer vos achats</a>
+              </div>
+            </div>`;
+        } else {
+          alert(data.message || 'Erreur lors de la suppression du panier');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert('Une erreur s\'est produite lors de la suppression du panier');
+      }
+    }
   </script>
-  
 @endpush

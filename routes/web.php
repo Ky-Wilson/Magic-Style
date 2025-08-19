@@ -19,12 +19,10 @@ Route::get('/shop/{product_slug}', [ShopController::class, 'product_details'])->
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add', [CartController::class, 'add_to_cart'])->name('cart.add');
 
-Route::put('cart/increase-quantity/{rowid}', [ShopController::class, 'increase_cart_quantity'])->name('cart.increase_quantity');
-Route::put('cart/decrease-quantity/{rowid}', [ShopController::class, 'decrease_cart_quantity'])->name('cart.decrease_quantity');
-
-
-
-
+Route::put('/cart/increase-quantity/{rowid}', [CartController::class, 'increase_cart_quantity'])->name('cart.increase_quantity');
+Route::put('/cart/decrease-quantity/{rowid}', [CartController::class, 'decrease_cart_quantity'])->name('cart.decrease_quantity');
+Route::delete('/cart/remove/{rowid}', [CartController::class, 'remove_item'])->name('cart.remove');
+Route::delete('/cart/remove-all', [CartController::class, 'clear_cart'])->name('cart.clear');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/account-dashboard', [UserController::class, 'index'])->name('user.index');

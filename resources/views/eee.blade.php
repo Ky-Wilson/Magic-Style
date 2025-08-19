@@ -1,8 +1,3 @@
-
-
-
-
-
 @extends('layouts.app')
 @section('content')
      <main class="pt-90">
@@ -33,21 +28,42 @@
               aria-labelledby="accordion-heading-1" data-bs-parent="#categories-list">
               <div class="accordion-body px-0 pb-0 pt-3">
                 <ul class="list list-inline mb-0">
-                  <li class="list-item"><a href="#" class="menu-link py-1">Dresses</a></li>
-                  <li class="list-item"><a href="#" class="menu-link py-1">Shorts</a></li>
-                  <li class="list-item"><a href="#" class="menu-link py-1">Sweatshirts</a></li>
-                  <li class="list-item"><a href="#" class="menu-link py-1">Swimwear</a></li>
-                  <li class="list-item"><a href="#" class="menu-link py-1">Jackets</a></li>
-                  <li class="list-item"><a href="#" class="menu-link py-1">T-Shirts & Tops</a></li>
-                  <li class="list-item"><a href="#" class="menu-link py-1">Jeans</a></li>
-                  <li class="list-item"><a href="#" class="menu-link py-1">Trousers</a></li>
-                  <li class="list-item"><a href="#" class="menu-link py-1">Men</a></li>
-                  <li class="list-item"><a href="#" class="menu-link py-1">Jumpers & Cardigans</a></li>
+                  <li class="list-item">
+                    <a href="#" class="menu-link py-1">Dresses</a>
+                  </li>
+                  <li class="list-item">
+                    <a href="#" class="menu-link py-1">Shorts</a>
+                  </li>
+                  <li class="list-item">
+                    <a href="#" class="menu-link py-1">Sweatshirts</a>
+                  </li>
+                  <li class="list-item">
+                    <a href="#" class="menu-link py-1">Swimwear</a>
+                  </li>
+                  <li class="list-item">
+                    <a href="#" class="menu-link py-1">Jackets</a>
+                  </li>
+                  <li class="list-item">
+                    <a href="#" class="menu-link py-1">T-Shirts & Tops</a>
+                  </li>
+                  <li class="list-item">
+                    <a href="#" class="menu-link py-1">Jeans</a>
+                  </li>
+                  <li class="list-item">
+                    <a href="#" class="menu-link py-1">Trousers</a>
+                  </li>
+                  <li class="list-item">
+                    <a href="#" class="menu-link py-1">Men</a>
+                  </li>
+                  <li class="list-item">
+                    <a href="#" class="menu-link py-1">Jumpers & Cardigans</a>
+                  </li>
                 </ul>
               </div>
             </div>
           </div>
         </div>
+
 
         <div class="accordion" id="color-filters">
           <div class="accordion-item mb-4 pb-3">
@@ -83,6 +99,7 @@
           </div>
         </div>
 
+
         <div class="accordion" id="size-filters">
           <div class="accordion-item mb-4 pb-3">
             <h5 class="accordion-header" id="accordion-heading-size">
@@ -112,6 +129,7 @@
             </div>
           </div>
         </div>
+
 
         <div class="accordion" id="brand-filters">
           <div class="accordion-item mb-4 pb-3">
@@ -179,6 +197,7 @@
           </div>
         </div>
 
+
         <div class="accordion" id="price-filters">
           <div class="accordion-item mb-4">
             <h5 class="accordion-header mb-2" id="accordion-heading-price">
@@ -236,7 +255,7 @@
                       class="text-uppercase section-title fw-normal mb-3 animate animate_fade animate_btt animate_delay-2">
                       Women's <br /><strong>ACCESSORIES</strong></h2>
                     <p class="mb-0 animate animate_fade animate_btt animate_delay-5">Accessories are the best way to
-                      update your look. Add a title edge with new styles and new colors, or go for timeless pieces.</p>
+                      update your look. Add a title edge with new styles and new colors, or go for timeless pieces.</h6>
                   </div>
                 </div>
                 <div class="slide-split_media position-relative">
@@ -257,7 +276,7 @@
                       class="text-uppercase section-title fw-normal mb-3 animate animate_fade animate_btt animate_delay-2">
                       Women's <br /><strong>ACCESSORIES</strong></h2>
                     <p class="mb-0 animate animate_fade animate_btt animate_delay-5">Accessories are the best way to
-                      update your look. Add a title edge with new styles and new colors, or go for timeless pieces.</p>
+                      update your look. Add a title edge with new styles and new colors, or go for timeless pieces.</h6>
                   </div>
                 </div>
                 <div class="slide-split_media position-relative">
@@ -278,7 +297,7 @@
                       class="text-uppercase section-title fw-normal mb-3 animate animate_fade animate_btt animate_delay-2">
                       Women's <br /><strong>ACCESSORIES</strong></h2>
                     <p class="mb-0 animate animate_fade animate_btt animate_delay-5">Accessories are the best way to
-                      update your look. Add a title edge with new styles and new colors, or go for timeless pieces.</p>
+                      update your look. Add a title edge with new styles and new colors, or go for timeless pieces.</h6>
                   </div>
                 </div>
                 <div class="slide-split_media position-relative">
@@ -293,6 +312,7 @@
 
           <div class="container p-3 p-xl-5">
             <div class="slideshow-pagination d-flex align-items-center position-absolute bottom-0 mb-4 pb-xl-2"></div>
+
           </div>
         </div>
 
@@ -306,19 +326,19 @@
           </div>
 
           <div class="shop-acs d-flex align-items-center justify-content-between justify-content-md-end flex-grow-1">
-            <select class="shop-acs__select form-select w-auto border-0 py-0 order-1 order-md-0" aria-label="Page Size" id="pagesize" name="size" style="margin-right: 20px">
-              <option value="12" {{ $size == 12 ? 'selected' : '' }}>Show 12</option>
-              <option value="24" {{ $size == 24 ? 'selected' : '' }}>Show 24</option>
-              <option value="48" {{ $size == 48 ? 'selected' : '' }}>Show 48</option>
-              <option value="102" {{ $size == 102 ? 'selected' : '' }}>Show 102</option>
+            <select class="shop-acs__select form-select w-auto border-0 py-0 order-1 order-md-0" aria-label="Page Size" id="pagesize" name="pagesize" style="margin-right: 20px">
+              <option value="12" {{ $size == 12 ? 'selected' : '' }}>Show</option>
+              <option value="24" {{ $size == 24 ? 'selected' : '' }}>24</option>
+              <option value="48" {{ $size == 48 ? 'selected' : '' }}>48</option>
+              <option value="102" {{ $size == 102 ? 'selected' : '' }}>102</option>
             </select>
 
-            <select class="shop-acs__select form-select w-auto border-0 py-0 order-1 order-md-0" aria-label="Sort Items" name="order" id="orderby">
-              <option value="-1" {{ $order == -1 ? 'selected' : '' }}>Default</option>
-              <option value="1" {{ $order == 1 ? 'selected' : '' }}>Date, New to Old</option>
-              <option value="2" {{ $order == 2 ? 'selected' : '' }}>Date, Old to New</option>
-              <option value="3" {{ $order == 3 ? 'selected' : '' }}>Price, Low to High</option>
-              <option value="4" {{ $order == 4 ? 'selected' : '' }}>Price, High to Low</option>
+            <select class="shop-acs__select form-select w-auto border-0 py-0 order-1 order-md-0" aria-label="Sort Items" name="orderBy" id="orderby">
+              <option value="-1"{{ $order == -1 ? 'selected' : ''}}>Default</option>
+              <option value="1" {{ $order == 1 ? 'selected' : ''}}>Date, New to old</option>
+              <option value="2" {{ $order == 2 ? 'selected' : ''}}>Date, Old to New</option>
+              <option value="3" {{ $order == 3 ? 'selected' : ''}}>Price, Low to High</option>
+              <option value="4" {{ $order == 4 ? 'selected' : ''}}>Price, High to Low</option>
             </select>
 
             <div class="shop-asc__seprator mx-3 bg-light d-none d-md-block order-md-0"></div>
@@ -349,7 +369,7 @@
               <div class="pc__img-wrapper">
                 <div class="swiper-container background-img js-swiper-slider" data-settings='{"resizeObserver": true}'>
                   <div class="swiper-wrapper">
-                   <div class="swiper-slide">
+                    <div class="swiper-slide">
                       <a href="{{route('shop.product.details', ['product_slug'=> $product->slug])}}"><img loading="lazy" src="{{ asset('uploads/products/') }}/{{ $product->image }}" width="330"
                           height="400" alt="{{ $product->name }}" class="pc__img"></a>
                     </div>
@@ -429,45 +449,34 @@
         </div>
 
         <div class="divider"></div>
-        <div class="flex item-center justify-between flex-wrap wgp-pagination" id="pagination">
+        <div class="flex item-center justify-between flex-wrap wgp-pagination">
             {{ $products->withQueryString()->links('pagination::bootstrap-5') }}
         </div>
       </div>
     </section>
   </main>
 
+
   <form id="frmfilter" action="{{ route('shop.index') }}" method="GET">
-    <input type="hidden" name="page" id="page" value="{{ $products->currentPage() }}">
-    <input type="hidden" name="size" id="size" value="{{ $size }}">
-    <input type="hidden" name="order" id="order" value="{{ $order }}">
+
+    <input type="hidden" name="page" value="{{ $products->currentPage() }}">
+    <input type="hidden" name="size" id="size" value="{{ $size}}">
+    <input type="hidden" name="order" id="order" value="{{ $order}}">
   </form>
 @endsection
 @push('scripts')
   <script>
-    $(document).ready(function() {
-      // Handle page size change
-      $('#pagesize').on('change', function() {
-        $('#size').val($(this).val());
-        $('#page').val(1); // Reset to first page when changing size
-        $('#frmfilter').submit();
+    $(function(){
+      $('#pagesize').on()("change", function() {
+          $('#size').val($("#pagesize option:selected").val());
+          $('#frmfilter').submit();
       });
 
-      // Handle order change
-      $('#orderby').on('change', function() {
-        $('#order').val($(this).val());
-        $('#page').val(1); // Reset to first page when changing order
-        $('#frmfilter').submit();
-      });
-
-      // Handle pagination clicks
-      $('#pagination').on('click', '.page-link', function(e) {
-        e.preventDefault();
-        const page = $(this).attr('href')?.match(/page=(\d+)/)?.[1] || 1;
-        $('#page').val(page);
-        $('#frmfilter').submit();
+      $('#orderby').on("change", function() {
+          $('#order').val($("#orderby option:selected").val());
+          $('#frmfilter').submit();
       });
     });
   </script>
+  
 @endpush
-
-
