@@ -64,8 +64,17 @@
                   <td>
                     <div class="qty-control position-relative">
                       <input type="number" name="quantity" value="{{ $item->qty }}" min="1" class="qty-control__number text-center">
-                      <div class="qty-control__reduce">-</div>
-                      <div class="qty-control__increase">+</div>
+                      <form method="POST" action="{{ route('cart.decrease_quantity', ['rowid' => $item->rowId]) }}">
+                          @csrf
+                          @method('PUT')
+                          <div class="qty-control__reduce">-</div>
+                      </form>
+                      <form method="POST" action="{{ route('cart.increase_quantity', ['rowid' => $item->rowId]) }}">
+                          @csrf
+                          @method('PUT')
+                          <div class="qty-control__increase">+</div>
+                      </form>
+                      
                     </div>
                   </td>
                   <td>
@@ -137,3 +146,29 @@
     </section>
   </main>
 @endsection
+@push('scripts')
+  <script>
+    $(function(){
+      $(".qty-control__increase").on('click', function(){
+        $(this).closest('form').submit();
+      });
+      $(".qty-control__reduce").on('click', function(){
+        $(this).closest('form').submit();
+      });
+    })
+    /* document.querySelectorAll('.qty-control__reduce').forEach(button => {
+      button.addEventListener('click', function(event) {
+        event.preventDefault();
+        this.closest('form').submit();
+      });
+    });
+
+    document.querySelectorAll('.qty-control__increase').forEach(button => {
+      button.addEventListener('click', function(event) {
+        event.preventDefault();
+        this.closest('form').submit();
+      });
+    }); */
+  </script>
+  
+@endpush
