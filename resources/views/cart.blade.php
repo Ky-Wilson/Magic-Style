@@ -166,7 +166,7 @@
               </div>
               <div class="mobile_fixed-btn_wrapper">
                 <div class="button-wrapper container">
-                  <a href="checkout.html" class="btn btn-primary btn-checkout">PROCEED TO CHECKOUT</a>
+                  <a href="{{ route('cart.checkout') }}" class="btn btn-primary btn-checkout">PROCEED TO CHECKOUT</a>
                 </div>
               </div>
             </div>
@@ -185,301 +185,365 @@
 @endsection
 
 @push('scripts')
-  <script>
-    let hasDiscount = {{ Session::has('discounts') ? 'true' : 'false' }};
+
+<script>
+let hasDiscount = {{ Session::has('discounts') ? 'true' : 'false' }};
+
+// Fonction globale pour supprimer le coupon
+window.removeCoupon = async function() {
+    console.log('Fonction removeCoupon appelée');
     
-    // Fonction globale pour supprimer le coupon
-    window.removeCoupon = async function() {
-      console.log('Fonction removeCoupon appelée'); // Debug
-      
-      if (!confirm('Êtes-vous sûr de vouloir supprimer ce coupon ?')) return;
-      
-      try {
-        console.log('Envoi de la requête de suppression...'); // Debug
-        
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce coupon ?')) return;
+    
+    try {
         const response = await fetch('{{ route("cart.remove_coupon") }}', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json'
-          }
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
         });
         
-        console.log('Réponse reçue:', response); // Debug
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
         const data = await response.json();
-        console.log('Données reçues:', data); // Debug
+        console.log('Response status:', response.status);
+        console.log('Response data:', data);
         
-        if (data.success) {
-          // Afficher message de succès
-          const messagesDiv = document.getElementById('coupon-messages');
-          messagesDiv.innerHTML = `<p class="text-success">${data.message}</p>`;
-          
-          // Vider le champ coupon
-          document.getElementById('coupon_code').value = '';
-          
-          // Mettre à jour l'affichage sans remise - directement dans la fonction
-          const cartTotalsContainer = document.getElementById('cart-totals-container');
-          const newTable = `
-            <table class="cart-totals">
-              <tbody>
-                <tr>
-                  <th>Subtotal</th>
-                  <td id="cart-subtotal">${data.cartSubtotal}</td>
-                </tr>
-                <tr>
-                  <th>Shipping</th>
-                  <td>Free</td>
-                </tr>
-                <tr>
-                  <th>VAT</th>
-                  <td id="cart-tax">${data.cartTax}</td>
-                </tr>
-                <tr>
-                  <th>Total</th>
-                  <td id="cart-total">${data.cartTotal}</td>
-                </tr>
-              </tbody>
-            </table>
-          `;
-          
-          cartTotalsContainer.innerHTML = newTable;
-          hasDiscount = false;
-          
+        if (response.ok && data.success) {
+            // Afficher message de succès
+            const messagesDiv = document.getElementById('coupon-messages');
+            messagesDiv.innerHTML = `<p class="text-success">${data.message}</p>`;
+            
+            // Vider le champ coupon
+            document.getElementById('coupon_code').value = '';
+            
+            // Mettre à jour l'affichage sans remise
+            updateCartDisplayWithoutDiscount(data);
+            
         } else {
-          alert(data.message || 'Erreur lors de la suppression du coupon');
+            console.error('Server error:', data);
+            alert(data.message || 'Erreur lors de la suppression du coupon');
         }
-      } catch (error) {
-        console.error('Erreur détaillée:', error);
-        alert('Une erreur s\'est produite lors de la suppression du coupon: ' + error.message);
-      }
-    };
+    } catch (error) {
+        console.error('Network/Parse error:', error);
+        alert('Une erreur réseau s\'est produite: ' + error.message);
+    }
+};
+
+// Application du coupon en AJAX
+document.getElementById('coupon-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
     
-    // Application du coupon en AJAX
-    document.getElementById('coupon-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const couponCode = document.getElementById('coupon_code').value.trim();
-      const messagesDiv = document.getElementById('coupon-messages');
-      const submitButton = this.querySelector('button[type="submit"]');
-      
-      // Désactiver le bouton pendant le traitement
-      submitButton.disabled = true;
-      submitButton.textContent = 'APPLYING...';
-      
-      try {
+    const couponCode = document.getElementById('coupon_code').value.trim();
+    const messagesDiv = document.getElementById('coupon-messages');
+    const submitButton = this.querySelector('button[type="submit"]');
+    
+    if (!couponCode) {
+        messagesDiv.innerHTML = '<p class="text-danger">Veuillez entrer un code de coupon</p>';
+        return;
+    }
+    
+    // Désactiver le bouton pendant le traitement
+    submitButton.disabled = true;
+    submitButton.textContent = 'APPLYING...';
+    
+    try {
         const formData = new FormData();
         formData.append('coupon_code', couponCode);
         formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
         
         const response = await fetch('{{ route("cart.apply_coupon") }}', {
-          method: 'POST',
-          headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json'
-          },
-          body: formData
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            },
+            body: formData
         });
         
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
         const data = await response.json();
-        console.log('Réponse du serveur:', data);
+        console.log('Coupon response status:', response.status);
+        console.log('Coupon response data:', data);
         
         // Nettoyer les anciens messages
         messagesDiv.innerHTML = '';
         
-        if (data.success) {
-          // Afficher le message de succès
-          messagesDiv.innerHTML = `<p class="text-success">${data.message}</p>`;
-          
-          // Mettre à jour l'affichage avec remise
-          updateCartTotalsWithDiscount(data);
-          
+        if (response.ok && data.success) {
+            // Afficher le message de succès
+            messagesDiv.innerHTML = `<p class="text-success">${data.message}</p>`;
+            
+            // Mettre à jour l'affichage avec remise
+            updateCartDisplayWithDiscount(data);
+            
         } else {
-          // Afficher le message d'erreur
-          messagesDiv.innerHTML = `<p class="text-danger">${data.message}</p>`;
+            // Afficher le message d'erreur
+            messagesDiv.innerHTML = `<p class="text-danger">${data.message}</p>`;
         }
         
-      } catch (error) {
-        console.error('Erreur détaillée:', error);
-        messagesDiv.innerHTML = `<p class="text-danger">Erreur: ${error.message}</p>`;
-      } finally {
+    } catch (error) {
+        console.error('Coupon error:', error);
+        messagesDiv.innerHTML = `<p class="text-danger">Erreur réseau: ${error.message}</p>`;
+    } finally {
         // Réactiver le bouton
         submitButton.disabled = false;
         submitButton.textContent = 'APPLY COUPON';
-      }
-    });
+    }
+});
 
-    function updateCartTotalsWithDiscount(data) {
-      const cartTotalsContainer = document.getElementById('cart-totals-container');
-      
-      console.log('Données reçues pour mise à jour:', data);
-      
-      // Créer le nouveau tableau avec remise
-      const newTable = `
+function updateCartDisplayWithDiscount(data) {
+    const cartTotalsContainer = document.getElementById('cart-totals-container');
+    
+    console.log('Mise à jour avec remise:', data);
+    
+    // Créer le nouveau tableau avec remise
+    const newTable = `
         <table class="cart-totals">
-          <tbody>
-            <tr>
-              <th>Subtotal</th>
-              <td id="cart-original-subtotal">$${data.originalSubtotal}</td>
-            </tr>
-            <tr id="discount-row">
-              <th>Discount ${data.coupon.code} 
-                <button type="button" onclick="removeCoupon()" class="btn btn-sm btn-outline-danger ms-2" title="Supprimer le coupon">×</button>
-              </th>
-              <td id="cart-discount" class="text-success">-${data.discount}</td>
-            </tr>
-            <tr>
-              <th>Subtotal after discount</th>
-              <td id="cart-subtotal">$${data.cartSubtotal}</td>
-            </tr>
-            <tr>
-              <th>Shipping</th>
-              <td>Free</td>
-            </tr>
-            <tr>
-              <th>VAT</th>
-              <td id="cart-tax">$${data.cartTax}</td>
-            </tr>
-            <tr>
-              <th>Total</th>
-              <td id="cart-total">$${data.cartTotal}</td>
-            </tr>
-          </tbody>
+            <tbody>
+                <tr>
+                    <th>Subtotal</th>
+                    <td id="cart-original-subtotal">$${data.originalSubtotal}</td>
+                </tr>
+                <tr id="discount-row">
+                    <th>Discount ${data.coupon.code} 
+                        <button type="button" onclick="removeCoupon()" class="btn btn-sm btn-outline-danger ms-2" title="Supprimer le coupon">×</button>
+                    </th>
+                    <td id="cart-discount" class="text-success">-$${data.discount}</td>
+                </tr>
+                <tr>
+                    <th>Subtotal after discount</th>
+                    <td id="cart-subtotal">$${data.cartSubtotal}</td>
+                </tr>
+                <tr>
+                    <th>Shipping</th>
+                    <td>Free</td>
+                </tr>
+                <tr>
+                    <th>VAT</th>
+                    <td id="cart-tax">$${data.cartTax}</td>
+                </tr>
+                <tr>
+                    <th>Total</th>
+                    <td id="cart-total">$${data.cartTotal}</td>
+                </tr>
+            </tbody>
         </table>
-      `;
-      
-      cartTotalsContainer.innerHTML = newTable;
-      hasDiscount = true;
-    }
+    `;
+    
+    cartTotalsContainer.innerHTML = newTable;
+    hasDiscount = true;
+}
 
-    function updateCartTotals(data) {
-      console.log('Mise à jour totaux avec:', data);
-      
-      if (hasDiscount && data.originalSubtotal && data.discount) {
+function updateCartDisplayWithoutDiscount(data) {
+    const cartTotalsContainer = document.getElementById('cart-totals-container');
+    
+    console.log('Mise à jour sans remise:', data);
+    
+    const newTable = `
+        <table class="cart-totals">
+            <tbody>
+                <tr>
+                    <th>Subtotal</th>
+                    <td id="cart-subtotal">$${data.cartSubtotal}</td>
+                </tr>
+                <tr>
+                    <th>Shipping</th>
+                    <td>Free</td>
+                </tr>
+                <tr>
+                    <th>VAT</th>
+                    <td id="cart-tax">$${data.cartTax}</td>
+                </tr>
+                <tr>
+                    <th>Total</th>
+                    <td id="cart-total">$${data.cartTotal}</td>
+                </tr>
+            </tbody>
+        </table>
+    `;
+    
+    cartTotalsContainer.innerHTML = newTable;
+    hasDiscount = false;
+}
+
+function updateCartTotals(data) {
+    console.log('Mise à jour totaux avec:', data);
+    
+    if (hasDiscount && data.originalSubtotal && data.discount) {
         // Mise à jour avec remise - utiliser les nouvelles données
-        if (document.getElementById('cart-original-subtotal')) {
-          document.getElementById('cart-original-subtotal').textContent = `$${data.originalSubtotal}`;
-        }
-        if (document.getElementById('cart-discount')) {
-          document.getElementById('cart-discount').textContent = `-$${data.discount}`;
-        }
-        if (document.getElementById('cart-subtotal')) {
-          document.getElementById('cart-subtotal').textContent = `$${data.cartSubtotal}`;
-        }
-      } else {
+        const originalSubtotalEl = document.getElementById('cart-original-subtotal');
+        const discountEl = document.getElementById('cart-discount');
+        const subtotalEl = document.getElementById('cart-subtotal');
+        
+        if (originalSubtotalEl) originalSubtotalEl.textContent = `$${data.originalSubtotal}`;
+        if (discountEl) discountEl.textContent = `-$${data.discount}`;
+        if (subtotalEl) subtotalEl.textContent = `$${data.cartSubtotal}`;
+    } else {
         // Mise à jour sans remise
-        if (document.getElementById('cart-subtotal')) {
-          document.getElementById('cart-subtotal').textContent = `$${data.cartSubtotal}`;
-        }
-      }
-      
-      // Mettre à jour VAT et Total dans tous les cas
-      if (document.getElementById('cart-tax')) {
-        document.getElementById('cart-tax').textContent = `$${data.cartTax}`;
-      }
-      if (document.getElementById('cart-total')) {
-        document.getElementById('cart-total').textContent = `$${data.cartTotal}`;
-      }
+        const subtotalEl = document.getElementById('cart-subtotal');
+        if (subtotalEl) subtotalEl.textContent = `$${data.cartSubtotal}`;
     }
+    
+    // Mettre à jour VAT et Total dans tous les cas
+    const taxEl = document.getElementById('cart-tax');
+    const totalEl = document.getElementById('cart-total');
+    
+    if (taxEl) taxEl.textContent = `$${data.cartTax}`;
+    if (totalEl) totalEl.textContent = `$${data.cartTotal}`;
+}
 
-    async function updateQuantity(rowId, action) {
-      try {
-        const response = await fetch(`/cart/${action}-quantity/${rowId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-          }
+async function updateQuantity(rowId, action) {
+    console.log(`Starting quantity update: ${action} for rowId: ${rowId}`);
+    
+    // Construire l'URL correcte
+    let url;
+    if (action === 'increase') {
+        url = `/cart/increase-quantity/${rowId}`;
+    } else if (action === 'decrease') {
+        url = `/cart/decrease-quantity/${rowId}`;
+    } else {
+        console.error('Action invalide:', action);
+        alert('Action invalide');
+        return;
+    }
+    
+    console.log('URL construite:', url);
+    
+    try {
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
         });
-        const data = await response.json();
         
-        console.log('Données reçues pour quantity update:', data);
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Server response error:', errorText);
+            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        }
+        
+        const data = await response.json();
+        console.log('Response data:', data);
         
         if (data.success) {
-          const row = document.querySelector(`tr[data-rowid="${rowId}"]`);
-          row.querySelector('.qty-control__number').value = data.quantity;
-          row.querySelector('.shopping-cart__subtotal').textContent = `$${data.subtotal}`;
-          
-          updateCartTotals(data);
+            const row = document.querySelector(`tr[data-rowid="${rowId}"]`);
+            if (row) {
+                const qtyInput = row.querySelector('.qty-control__number');
+                const subtotalSpan = row.querySelector('.shopping-cart__subtotal');
+                
+                if (qtyInput) qtyInput.value = data.quantity;
+                if (subtotalSpan) subtotalSpan.textContent = `$${data.subtotal}`;
+            } else {
+                console.warn('Row not found for rowId:', rowId);
+            }
+            
+            updateCartTotals(data);
         } else {
-          alert(data.message || 'Erreur lors de la mise à jour de la quantité');
+            console.error('Server returned error:', data.message);
+            alert(data.message || 'Erreur lors de la mise à jour de la quantité');
         }
-      } catch (error) {
-        console.error('Erreur:', error);
-        alert('Une erreur s\'est produite lors de la mise à jour de la quantité');
-      }
+    } catch (error) {
+        console.error('Complete error object:', error);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        alert(`Erreur lors de la mise à jour: ${error.message}`);
     }
+}
 
-    async function removeItem(rowId) {
-      if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) return;
-      try {
+async function removeItem(rowId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) return;
+    
+    console.log('Removing item with rowId:', rowId);
+    
+    try {
         const response = await fetch(`/cart/remove/${rowId}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-          }
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
         });
-        const data = await response.json();
-        if (data.success) {
-          const row = document.querySelector(`tr[data-rowid="${rowId}"]`);
-          row.remove();
-          
-          updateCartTotals(data);
-          
-          if (data.cartCount === 0) {
-            document.querySelector('.shopping-cart').innerHTML = `
-              <div class="row">
-                <div class="col-md-12 text-center pt-5 bp-5">
-                  <p>Aucun article dans votre panier</p>
-                  <a href="{{ route('shop.index') }}" class="btn btn-info">Continuer vos achats</a>
-                </div>
-              </div>`;
-          }
-        } else {
-          alert(data.message || 'Erreur lors de la suppression de l\'article');
+        
+        console.log('Remove response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Remove error response:', errorText);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-      } catch (error) {
-        console.error('Erreur:', error);
-        alert('Une erreur s\'est produite lors de la suppression de l\'article');
-      }
+        
+        const data = await response.json();
+        console.log('Remove response data:', data);
+        
+        if (data.success) {
+            const row = document.querySelector(`tr[data-rowid="${rowId}"]`);
+            if (row) row.remove();
+            
+            updateCartTotals(data);
+            
+            if (data.cartCount === 0) {
+                document.querySelector('.shopping-cart').innerHTML = `
+                    <div class="row">
+                        <div class="col-md-12 text-center pt-5 bp-5">
+                            <p>Aucun article dans votre panier</p>
+                            <a href="{{ route('shop.index') }}" class="btn btn-info">Continuer vos achats</a>
+                        </div>
+                    </div>`;
+            }
+        } else {
+            alert(data.message || 'Erreur lors de la suppression de l\'article');
+        }
+    } catch (error) {
+        console.error('Remove item error:', error);
+        alert(`Erreur lors de la suppression: ${error.message}`);
     }
+}
 
-    async function clearCart() {
-      if (!confirm('Êtes-vous sûr de vouloir vider le panier ?')) return;
-      try {
+async function clearCart() {
+    if (!confirm('Êtes-vous sûr de vouloir vider le panier ?')) return;
+    
+    try {
         const response = await fetch('/cart/remove-all', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-          }
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
         });
-        const data = await response.json();
-        if (data.success) {
-          document.querySelector('.shopping-cart').innerHTML = `
-            <div class="row">
-              <div class="col-md-12 text-center pt-5 bp-5">
-                <p>Aucun article dans votre panier</p>
-                <a href="{{ route('shop.index') }}" class="btn btn-info">Continuer vos achats</a>
-            </div>
-            </div>`;
-        } else {
-          alert(data.message || 'Erreur lors de la suppression du panier');
+        
+        console.log('Clear cart response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Clear cart error:', errorText);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-      } catch (error) {
-        console.error('Erreur:', error);
-        alert('Une erreur s\'est produite lors de la suppression du panier');
-      }
+        
+        const data = await response.json();
+        console.log('Clear cart response data:', data);
+        
+        if (data.success) {
+            document.querySelector('.shopping-cart').innerHTML = `
+                <div class="row">
+                    <div class="col-md-12 text-center pt-5 bp-5">
+                        <p>Aucun article dans votre panier</p>
+                        <a href="{{ route('shop.index') }}" class="btn btn-info">Continuer vos achats</a>
+                    </div>
+                </div>`;
+        } else {
+            alert(data.message || 'Erreur lors de la suppression du panier');
+        }
+    } catch (error) {
+        console.error('Clear cart error:', error);
+        alert(`Erreur lors du vidage du panier: ${error.message}`);
     }
-  </script>
+}
+</script>
 @endpush
