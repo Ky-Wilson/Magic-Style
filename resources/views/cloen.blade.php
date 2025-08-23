@@ -1,10 +1,5 @@
 @extends('layouts.app')
 @section('content')
-<style>
-  .text-success{
-    color: #008000 !important;
-  }
-</style>
  <main class="pt-90">
     <div class="mb-4 pb-4"></div>
     <section class="shop-checkout container">
@@ -108,61 +103,50 @@
             <div class="sticky-content">
               <div class="shopping-cart__totals">
                 <h3>Cart Totals</h3>
-                <div id="cart-totals-container">
-                  @if(Session::has('discounts'))
-                    <table class="cart-totals">
-                    <tbody>
-                      <tr>
-                        <th>Subtotal</th>
-                        <td id="cart-original-subtotal">${{ Session::get('discounts')['original_subtotal'] }}</td>
-                      </tr>
-                      <tr id="discount-row">
-                        <th>Discount {{ Session::get('coupon')['code'] }} 
-                          <button type="button" onclick="removeCoupon()" class="btn btn-sm btn-outline-danger ms-2" title="Supprimer le coupon">×</button>
-                        </th>
-                        <td id="cart-discount" class="text-success">-${{ Session::get('discounts')['discount'] }}</td>
-                      </tr>
-                      <tr>
-                        <th>Subtotal after discount</th>
-                        <td id="cart-subtotal">${{ Session::get('discounts')['subtotal'] }}</td>
-                      </tr>
-                      <tr>
-                        <th>Shipping</th>
-                        <td>Free</td>
-                      </tr>
-                      <tr>
-                        <th>VAT</th>
-                        <td id="cart-tax">${{ Session::get('discounts')['tax'] }}</td>
-                      </tr>
-                      <tr>
-                        <th>Total</th>
-                        <td id="cart-total">${{ Session::get('discounts')['total'] }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  @else
-                  <table class="cart-totals">
-                    <tbody>
-                      <tr>
-                        <th>Subtotal</th>
-                        <td id="cart-subtotal">${{ Cart::instance('cart')->subtotal() }}</td>
-                      </tr>
-                      <tr>
-                        <th>Shipping</th>
-                        <td>Free</td>
-                      </tr>
-                      <tr>
-                        <th>VAT</th>
-                        <td id="cart-tax">${{ Cart::instance('cart')->tax() }}</td>
-                      </tr>
-                      <tr>
-                        <th>Total</th>
-                        <td id="cart-total">${{ Cart::instance('cart')->total() }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  @endif
-                </div>
+                <table class="cart-totals">
+                  <tbody>
+                    <tr>
+                      <th>Subtotal</th>
+                      <td id="cart-subtotal">
+                        @if(Session::has('discounts'))
+                          ${{ Session::get('discounts')['subtotal'] }}
+                        @else
+                          ${{ Cart::instance('cart')->subtotal() }}
+                        @endif
+                      </td>
+                    </tr>
+                    @if(Session::has('discounts'))
+                    <tr>
+                      <th>Discount</th>
+                      <td id="cart-discount" class="text-success">-${{ Session::get('discounts')['discount'] }}</td>
+                    </tr>
+                    @endif
+                    <tr>
+                      <th>Shipping</th>
+                      <td>Free</td>
+                    </tr>
+                    <tr>
+                      <th>VAT</th>
+                      <td id="cart-tax">
+                        @if(Session::has('discounts'))
+                          ${{ Session::get('discounts')['tax'] }}
+                        @else
+                          ${{ Cart::instance('cart')->tax() }}
+                        @endif
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Total</th>
+                      <td id="cart-total">
+                        @if(Session::has('discounts'))
+                          ${{ Session::get('discounts')['total'] }}
+                        @else
+                          ${{ Cart::instance('cart')->total() }}
+                        @endif
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
               <div class="mobile_fixed-btn_wrapper">
                 <div class="button-wrapper container">
@@ -186,80 +170,6 @@
 
 @push('scripts')
   <script>
-    let hasDiscount = {{ Session::has('discounts') ? 'true' : 'false' }};
-    
-    // Fonction globale pour supprimer le coupon
-    window.removeCoupon = async function() {
-      console.log('Fonction removeCoupon appelée'); // Debug
-      
-      if (!confirm('Êtes-vous sûr de vouloir supprimer ce coupon ?')) return;
-      
-      try {
-        console.log('Envoi de la requête de suppression...'); // Debug
-        
-        const response = await fetch('{{ route("cart.remove_coupon") }}', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json'
-          }
-        });
-        
-        console.log('Réponse reçue:', response); // Debug
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('Données reçues:', data); // Debug
-        
-        if (data.success) {
-          // Afficher message de succès
-          const messagesDiv = document.getElementById('coupon-messages');
-          messagesDiv.innerHTML = `<p class="text-success">${data.message}</p>`;
-          
-          // Vider le champ coupon
-          document.getElementById('coupon_code').value = '';
-          
-          // Mettre à jour l'affichage sans remise - directement dans la fonction
-          const cartTotalsContainer = document.getElementById('cart-totals-container');
-          const newTable = `
-            <table class="cart-totals">
-              <tbody>
-                <tr>
-                  <th>Subtotal</th>
-                  <td id="cart-subtotal">${data.cartSubtotal}</td>
-                </tr>
-                <tr>
-                  <th>Shipping</th>
-                  <td>Free</td>
-                </tr>
-                <tr>
-                  <th>VAT</th>
-                  <td id="cart-tax">${data.cartTax}</td>
-                </tr>
-                <tr>
-                  <th>Total</th>
-                  <td id="cart-total">${data.cartTotal}</td>
-                </tr>
-              </tbody>
-            </table>
-          `;
-          
-          cartTotalsContainer.innerHTML = newTable;
-          hasDiscount = false;
-          
-        } else {
-          alert(data.message || 'Erreur lors de la suppression du coupon');
-        }
-      } catch (error) {
-        console.error('Erreur détaillée:', error);
-        alert('Une erreur s\'est produite lors de la suppression du coupon: ' + error.message);
-      }
-    };
-    
     // Application du coupon en AJAX
     document.getElementById('coupon-form').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -273,25 +183,19 @@
       submitButton.textContent = 'APPLYING...';
       
       try {
-        const formData = new FormData();
-        formData.append('coupon_code', couponCode);
-        formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
-        
         const response = await fetch('{{ route("cart.apply_coupon") }}', {
           method: 'POST',
           headers: {
+            'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept': 'application/json'
           },
-          body: formData
+          body: JSON.stringify({
+            coupon_code: couponCode
+          })
         });
         
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
         const data = await response.json();
-        console.log('Réponse du serveur:', data);
         
         // Nettoyer les anciens messages
         messagesDiv.innerHTML = '';
@@ -300,8 +204,31 @@
           // Afficher le message de succès
           messagesDiv.innerHTML = `<p class="text-success">${data.message}</p>`;
           
-          // Mettre à jour l'affichage avec remise
-          updateCartTotalsWithDiscount(data);
+          // Mettre à jour les totaux
+          document.getElementById('cart-subtotal').textContent = `$${data.cartSubtotal}`;
+          document.getElementById('cart-tax').textContent = `$${data.cartTax}`;
+          document.getElementById('cart-total').textContent = `$${data.cartTotal}`;
+          
+          // Ajouter ou mettre à jour la ligne de réduction
+          const cartTotalsTable = document.querySelector('.cart-totals tbody');
+          let discountRow = document.getElementById('discount-row');
+          
+          if (data.discount && parseFloat(data.discount) > 0) {
+            if (!discountRow) {
+              // Créer la ligne de réduction
+              const subtotalRow = cartTotalsTable.querySelector('tr:first-child');
+              discountRow = document.createElement('tr');
+              discountRow.id = 'discount-row';
+              discountRow.innerHTML = `
+                <th>Discount</th>
+                <td id="cart-discount" class="text-success">-$${data.discount}</td>
+              `;
+              subtotalRow.insertAdjacentElement('afterend', discountRow);
+            } else {
+              // Mettre à jour la ligne existante
+              document.getElementById('cart-discount').textContent = `-$${data.discount}`;
+            }
+          }
           
         } else {
           // Afficher le message d'erreur
@@ -309,87 +236,14 @@
         }
         
       } catch (error) {
-        console.error('Erreur détaillée:', error);
-        messagesDiv.innerHTML = `<p class="text-danger">Erreur: ${error.message}</p>`;
+        console.error('Erreur:', error);
+        messagesDiv.innerHTML = `<p class="text-danger">Une erreur s'est produite lors de l'application du coupon</p>`;
       } finally {
         // Réactiver le bouton
         submitButton.disabled = false;
         submitButton.textContent = 'APPLY COUPON';
       }
     });
-
-    function updateCartTotalsWithDiscount(data) {
-      const cartTotalsContainer = document.getElementById('cart-totals-container');
-      
-      console.log('Données reçues pour mise à jour:', data);
-      
-      // Créer le nouveau tableau avec remise
-      const newTable = `
-        <table class="cart-totals">
-          <tbody>
-            <tr>
-              <th>Subtotal</th>
-              <td id="cart-original-subtotal">$${data.originalSubtotal}</td>
-            </tr>
-            <tr id="discount-row">
-              <th>Discount ${data.coupon.code} 
-                <button type="button" onclick="removeCoupon()" class="btn btn-sm btn-outline-danger ms-2" title="Supprimer le coupon">×</button>
-              </th>
-              <td id="cart-discount" class="text-success">-${data.discount}</td>
-            </tr>
-            <tr>
-              <th>Subtotal after discount</th>
-              <td id="cart-subtotal">$${data.cartSubtotal}</td>
-            </tr>
-            <tr>
-              <th>Shipping</th>
-              <td>Free</td>
-            </tr>
-            <tr>
-              <th>VAT</th>
-              <td id="cart-tax">$${data.cartTax}</td>
-            </tr>
-            <tr>
-              <th>Total</th>
-              <td id="cart-total">$${data.cartTotal}</td>
-            </tr>
-          </tbody>
-        </table>
-      `;
-      
-      cartTotalsContainer.innerHTML = newTable;
-      hasDiscount = true;
-    }
-
-    function updateCartTotals(data) {
-      console.log('Mise à jour totaux avec:', data);
-      
-      if (hasDiscount && data.originalSubtotal && data.discount) {
-        // Mise à jour avec remise - utiliser les nouvelles données
-        if (document.getElementById('cart-original-subtotal')) {
-          document.getElementById('cart-original-subtotal').textContent = `$${data.originalSubtotal}`;
-        }
-        if (document.getElementById('cart-discount')) {
-          document.getElementById('cart-discount').textContent = `-$${data.discount}`;
-        }
-        if (document.getElementById('cart-subtotal')) {
-          document.getElementById('cart-subtotal').textContent = `$${data.cartSubtotal}`;
-        }
-      } else {
-        // Mise à jour sans remise
-        if (document.getElementById('cart-subtotal')) {
-          document.getElementById('cart-subtotal').textContent = `$${data.cartSubtotal}`;
-        }
-      }
-      
-      // Mettre à jour VAT et Total dans tous les cas
-      if (document.getElementById('cart-tax')) {
-        document.getElementById('cart-tax').textContent = `$${data.cartTax}`;
-      }
-      if (document.getElementById('cart-total')) {
-        document.getElementById('cart-total').textContent = `$${data.cartTotal}`;
-      }
-    }
 
     async function updateQuantity(rowId, action) {
       try {
@@ -401,15 +255,13 @@
           }
         });
         const data = await response.json();
-        
-        console.log('Données reçues pour quantity update:', data);
-        
         if (data.success) {
           const row = document.querySelector(`tr[data-rowid="${rowId}"]`);
           row.querySelector('.qty-control__number').value = data.quantity;
           row.querySelector('.shopping-cart__subtotal').textContent = `$${data.subtotal}`;
-          
-          updateCartTotals(data);
+          document.getElementById('cart-subtotal').textContent = `$${data.cartSubtotal}`;
+          document.getElementById('cart-tax').textContent = `$${data.cartTax}`;
+          document.getElementById('cart-total').textContent = `$${data.cartTotal}`;
         } else {
           alert(data.message || 'Erreur lors de la mise à jour de la quantité');
         }
@@ -433,9 +285,9 @@
         if (data.success) {
           const row = document.querySelector(`tr[data-rowid="${rowId}"]`);
           row.remove();
-          
-          updateCartTotals(data);
-          
+          document.getElementById('cart-subtotal').textContent = `$${data.cartSubtotal}`;
+          document.getElementById('cart-tax').textContent = `$${data.cartTax}`;
+          document.getElementById('cart-total').textContent = `$${data.cartTotal}`;
           if (data.cartCount === 0) {
             document.querySelector('.shopping-cart').innerHTML = `
               <div class="row">
@@ -471,7 +323,7 @@
               <div class="col-md-12 text-center pt-5 bp-5">
                 <p>Aucun article dans votre panier</p>
                 <a href="{{ route('shop.index') }}" class="btn btn-info">Continuer vos achats</a>
-            </div>
+              </div>
             </div>`;
         } else {
           alert(data.message || 'Erreur lors de la suppression du panier');

@@ -26,6 +26,9 @@ Route::put('/cart/decrease-quantity/{rowid}', [CartController::class, 'decrease_
 Route::delete('/cart/remove/{rowid}', [CartController::class, 'remove_item'])->name('cart.remove');
 Route::delete('/cart/remove-all', [CartController::class, 'clear_cart'])->name('cart.clear');
 
+Route::post('/cart/apply-coupon', [CartController::class, 'apply_coupon_code'])->name('cart.apply_coupon');
+Route::delete('/cart/remove-coupon', [CartController::class, 'remove_coupon_code'])->name(name: 'cart.remove_coupon');
+
 
 Route::post('/wishlist/add', [WishlistController::class, 'add_to_wishlist'])->name('wishlist.add');
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
@@ -63,4 +66,14 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
         Route::get('/admin/product/{id}/edit', [AdminController::class, 'edit_product'])->name('admin.edit_product');
         Route::put('/admin/product/{id}', [AdminController::class, 'update_product'])->name('admin.update_product');
         Route::delete('/admin/product/{id}/delete', [AdminController::class, 'delete_product'])->name('admin.delete_product');
+
+    // Coupons management routes
+        Route::get('/admin/coupons', [AdminController::class, 'coupons'])->name('admin.coupons');
+        Route::get('/admin/coupon/add-coupon', [AdminController::class, 'coupon_add'])->name('admin.add_coupon');
+        Route::post('/admin/coupon/store', [AdminController::class, 'coupon_store'])->name('admin.store_coupon');
+        Route::get('/admin/coupon/{id}/edit', [AdminController::class, 'coupon_edit'])->name('admin.edit_coupon');
+        Route::put('/admin/coupon/{id}', [AdminController::class, 'coupon_update'])->name('admin.update_coupon');
+        Route::delete('/admin/coupon/{id}/delete', [AdminController::class, 'coupon_delete'])->name('admin.delete_coupon');
+
+    // Orders management routes
 });  

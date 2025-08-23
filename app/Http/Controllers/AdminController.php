@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Brand;
+use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Support\Str;
@@ -466,6 +467,70 @@ class AdminController extends Controller
         }
         $product->delete();
         return redirect()->route('admin.products')->with('status', 'Product deleted successfully!');
+    }
+
+    public function coupons(){
+        $coupons = Coupon::orderBy('expiry_date', 'DESC')->paginate(12);
+        return view('admin.coupons.index', compact('coupons'));
+    }
+
+    public function coupon_add(){
+        return view('admin.coupons.add-coupons');
+    }
+
+    public function coupon_store(Request $request){
+        $request->validate([
+            'code' => 'required|string|unique:coupons,code',
+            'type' => 'required',
+            'value' => 'required',
+            'cart_value' => 'required|numeric',
+            'expiry_date' => 'required|date',
+        ]);
+
+        $coupon = new Coupon();
+        $coupon->code = $request->code;
+        $coupon->type = $request->type;
+        $coupon->value = $request->value;
+        $coupon->cart_value = $request->cart_value;
+        $coupon->expiry_date = $request->expiry_date;
+        $coupon->save();
+
+        return redirect()->route('admin.coupons')->with('status', 'Coupon added successfully!');
+    }
+
+    public function coupon_edit($id){
+        $coupon = Coupon::find($id);
+        return view('admin.coupons.edit-coupons', compact('coupon'));
+    }
+
+    public function coupon_update(Request $request, $id){
+        $coupon = Coupon::find($id);
+
+        // Validation des données avec la règle 'unique'
+        // qui ignore l'ID du coupon en cours de modification.
+        $request->validate([
+            'code' => 'required|string|unique:coupons,code,'.$coupon->id,
+            'type' => 'required',
+            'value' => 'required',
+            'cart_value' => 'required|numeric',
+            'expiry_date' => 'required|date',
+        ]);
+        
+        // Mise à jour des attributs du coupon
+        $coupon->code = $request->code;
+        $coupon->type = $request->type;
+        $coupon->value = $request->value;
+        $coupon->cart_value = $request->cart_value;
+        $coupon->expiry_date = $request->expiry_date;
+        $coupon->save();
+
+        return redirect()->route('admin.coupons')->with('status', 'Coupon mis à jour avec succès !');
+    }
+
+    public function coupon_delete($id){
+        $coupon = Coupon::find($id);
+        $coupon->delete();
+        return redirect()->route('admin.coupons')->with('status', 'Coupon supprimé avec succès !');
     }
 
 
