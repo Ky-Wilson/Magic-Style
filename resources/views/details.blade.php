@@ -423,11 +423,11 @@
             @foreach($rproducts as $rproduct)
                 <div class="swiper-slide product-card">
                     <div class="pc__img-wrapper">
-                        <a href="details.html">
-                        <img loading="lazy" src="assets/images/products/product_3.jpg" width="330" height="400"
-                            alt="Cropped Faux leather Jacket" class="pc__img">
-                        <img loading="lazy" src="assets/images/products/product_3-1.jpg" width="330" height="400"
-                            alt="Cropped Faux leather Jacket" class="pc__img pc__img-second">
+                        <a href="{{ route('shop.product.details', ['product_slug' => $rproduct->slug]) }}">
+                        <img loading="lazy" src="{{ asset('uploads/products/'.$rproduct->image) }}" width="330" height="400"
+                            alt="{{ $rproduct->name }}" class="pc__img">
+                        <img loading="lazy" src="{{ asset('uploads/products/'.$rproduct->image) }}" width="330" height="400"
+                            alt="{{ $rproduct->name }}" class="pc__img pc__img-second">
                         </a>
                         @if(Cart::instance('cart')->content()->where('id', $rproduct->id)->count() > 0)
                             <a href="{{ route('cart.index') }}" class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase btn-warning mb-3">Go to Cart</a>
