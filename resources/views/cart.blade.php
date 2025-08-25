@@ -145,19 +145,19 @@
                     <tbody>
                       <tr>
                         <th>Subtotal</th>
-                        <td id="cart-subtotal">${{ Cart::instance('cart')->subtotal() }}</td>
+                        <td id="cart-subtotal" class="text-right">${{ Cart::instance('cart')->subtotal() }}</td>
                       </tr>
                       <tr>
                         <th>Shipping</th>
-                        <td>Free</td>
+                        <td class="text-right">Free</td>
                       </tr>
                       <tr>
                         <th>VAT</th>
-                        <td id="cart-tax">${{ Cart::instance('cart')->tax() }}</td>
+                        <td id="cart-tax" class="text-right">${{ Cart::instance('cart')->tax() }}</td>
                       </tr>
                       <tr>
                         <th>Total</th>
-                        <td id="cart-total">${{ Cart::instance('cart')->total() }}</td>
+                        <td id="cart-total" class="text-right">${{ Cart::instance('cart')->total() }}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -188,6 +188,71 @@
 
 <script>
 let hasDiscount = {{ Session::has('discounts') ? 'true' : 'false' }};
+
+// Fonction pour afficher des messages temporaires
+function showTemporaryMessage(message, type = 'info') {
+    // Créer ou récupérer le conteneur de messages
+    let messageContainer = document.getElementById('temporary-messages');
+    if (!messageContainer) {
+        messageContainer = document.createElement('div');
+        messageContainer.id = 'temporary-messages';
+        messageContainer.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            max-width: 400px;
+        `;
+        document.body.appendChild(messageContainer);
+    }
+    
+    // Créer le message
+    const messageEl = document.createElement('div');
+    const alertClass = type === 'error' ? 'alert-danger' : 
+                     type === 'success' ? 'alert-success' : 'alert-info';
+    
+    messageEl.className = `alert ${alertClass} alert-dismissible fade show`;
+    messageEl.style.cssText = `margin-bottom: 10px; animation: slideIn 0.3s ease-out;`;
+    messageEl.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" aria-label="Close"></button>
+    `;
+    
+    // Ajouter la gestion du clic sur fermer
+    const closeBtn = messageEl.querySelector('.btn-close');
+    closeBtn.addEventListener('click', () => {
+        messageEl.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => messageEl.remove(), 300);
+    });
+    
+    // Ajouter le message au conteneur
+    messageContainer.appendChild(messageEl);
+    
+    // Auto-suppression après 5 secondes
+    setTimeout(() => {
+        if (messageEl.parentNode) {
+            messageEl.style.animation = 'slideOut 0.3s ease-in';
+            setTimeout(() => messageEl.remove(), 300);
+        }
+    }, 5000);
+}
+
+// Ajouter les animations CSS
+if (!document.getElementById('temp-message-styles')) {
+    const style = document.createElement('style');
+    style.id = 'temp-message-styles';
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+}
 
 // Fonction globale pour supprimer le coupon
 window.removeCoupon = async function() {
@@ -421,37 +486,43 @@ async function updateQuantity(rowId, action) {
         console.log('Response status:', response.status);
         console.log('Response headers:', response.headers);
         
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Server response error:', errorText);
-            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
-        }
-        
         const data = await response.json();
+        console.log('Response status:', response.status);
         console.log('Response data:', data);
         
-        if (data.success) {
+        if (response.ok && data.success) {
             const row = document.querySelector(`tr[data-rowid="${rowId}"]`);
             if (row) {
                 const qtyInput = row.querySelector('.qty-control__number');
                 const subtotalSpan = row.querySelector('.shopping-cart__subtotal');
                 
                 if (qtyInput) qtyInput.value = data.quantity;
-                if (subtotalSpan) subtotalSpan.textContent = `$${data.subtotal}`;
+                if (subtotalSpan) subtotalSpan.textContent = `${data.subtotal}`;
             } else {
                 console.warn('Row not found for rowId:', rowId);
             }
             
             updateCartTotals(data);
         } else {
-            console.error('Server returned error:', data.message);
-            alert(data.message || 'Erreur lors de la mise à jour de la quantité');
+            // Afficher le message d'erreur du serveur de manière propre
+            const errorMessage = data.message || 'Erreur lors de la mise à jour de la quantité';
+            console.error('Server returned error:', errorMessage);
+            
+            // Créer un message d'erreur temporaire dans l'interface
+            showTemporaryMessage(errorMessage, 'error');
         }
     } catch (error) {
-        console.error('Complete error object:', error);
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-        alert(`Erreur lors de la mise à jour: ${error.message}`);
+        console.error('Network/Connection error:', error);
+        
+        // Message d'erreur plus convivial pour les erreurs réseau
+        let userFriendlyMessage = 'Une erreur de connexion s\'est produite. Veuillez réessayer.';
+        
+        // Si c'est une erreur de parsing JSON, c'est probablement une erreur serveur
+        if (error.message.includes('Unexpected token') || error.message.includes('JSON')) {
+            userFriendlyMessage = 'Le serveur a rencontré une erreur. Veuillez réessayer dans quelques instants.';
+        }
+        
+        showTemporaryMessage(userFriendlyMessage, 'error');
     }
 }
 
@@ -473,9 +544,10 @@ async function removeItem(rowId) {
         console.log('Remove response status:', response.status);
         
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Remove error response:', errorText);
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json().catch(() => ({}));
+            const errorMessage = data.message || 'Erreur lors de la suppression de l\'article';
+            showTemporaryMessage(errorMessage, 'error');
+            return;
         }
         
         const data = await response.json();
@@ -496,12 +568,14 @@ async function removeItem(rowId) {
                         </div>
                     </div>`;
             }
+            
+            showTemporaryMessage('Article supprimé du panier', 'success');
         } else {
             alert(data.message || 'Erreur lors de la suppression de l\'article');
         }
     } catch (error) {
         console.error('Remove item error:', error);
-        alert(`Erreur lors de la suppression: ${error.message}`);
+        showTemporaryMessage('Erreur lors de la suppression de l\'article. Veuillez réessayer.', 'error');
     }
 }
 
@@ -521,9 +595,10 @@ async function clearCart() {
         console.log('Clear cart response status:', response.status);
         
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Clear cart error:', errorText);
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json().catch(() => ({}));
+            const errorMessage = data.message || 'Erreur lors du vidage du panier';
+            showTemporaryMessage(errorMessage, 'error');
+            return;
         }
         
         const data = await response.json();
@@ -537,12 +612,14 @@ async function clearCart() {
                         <a href="{{ route('shop.index') }}" class="btn btn-info">Continuer vos achats</a>
                     </div>
                 </div>`;
+            
+            showTemporaryMessage('Panier vidé avec succès', 'success');
         } else {
-            alert(data.message || 'Erreur lors de la suppression du panier');
+            showTemporaryMessage(data.message || 'Erreur lors du vidage du panier', 'error');
         }
     } catch (error) {
         console.error('Clear cart error:', error);
-        alert(`Erreur lors du vidage du panier: ${error.message}`);
+        showTemporaryMessage('Erreur lors du vidage du panier. Veuillez réessayer.', 'error');
     }
 }
 </script>

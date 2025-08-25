@@ -27,7 +27,8 @@
           </span>
         </a>
       </div>
-      <form name="checkout-form" action="">
+      <form name="checkout-form" action="{{ route('cart.place.an.order') }}" method="POST">
+        @csrf
         <div class="checkout-form">
           <div class="billing-info__wrapper">
             <div class="row">
@@ -169,7 +170,7 @@
                         <tbody>
                             <tr>
                                 <th>Subtotal</th>
-                                <td id="cart-original-subtotal">${{ Session::get('discounts')['original_subtotal'] }}</td>
+                                <td id="cart-original-subtotal" class="text-right">${{ Session::get('discounts')['original_subtotal'] }}</td>
                             </tr>
                             <tr id="discount-row">
                                 <th>Discount {{ Session::get('coupon')['code'] }} 
@@ -179,19 +180,19 @@
                             </tr>
                             <tr>
                                 <th>Subtotal after discount</th>
-                                <td id="cart-subtotal">${{ Session::get('discounts')['subtotal'] }}</td>
+                                <td id="cart-subtotal" class="text-right">${{ Session::get('discounts')['subtotal'] }}</td>
                             </tr>
                             <tr>
                                 <th>Shipping</th>
-                                <td>Free</td>
+                                <td class="text-right">Free</td>
                             </tr>
                             <tr>
                                 <th>VAT</th>
-                                <td id="cart-tax">${{ Session::get('discounts')['tax'] }}</td>
+                                <td id="cart-tax" class="text-right">${{ Session::get('discounts')['tax'] }}</td>
                             </tr>
                             <tr>
                                 <th>Total</th>
-                                <td id="cart-total">${{ Session::get('discounts')['total'] }}</td>
+                                <td id="cart-total" class="text-right">${{ Session::get('discounts')['total'] }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -200,26 +201,26 @@
                   <tbody>
                     <tr>
                       <th>SUBTOTAL</th>
-                      <td align="right">${{ Cart::instance('cart')->subtotal() }}</td>
+                      <td class="text-right">${{ Cart::instance('cart')->subtotal() }}</td>
                     </tr>
                     <tr>
                       <th>SHIPPING</th>
-                      <td align="right">Free shipping</td>
+                      <td class="text-right">Free shipping</td>
                     </tr>
                     <tr>
                       <th>VAT</th>
-                      <td align="right">${{ Cart::instance('cart')->tax() }}</td>
+                      <td class="text-right">${{ Cart::instance('cart')->tax() }}</td>
                     </tr>
                     <tr>
                       <th>TOTAL</th>
-                      <td align="right">${{ Cart::instance('cart')->total() }}</td>
+                      <td class="text-right">${{ Cart::instance('cart')->total() }}</td>
                     </tr>
                   </tbody>
                 </table>
                 @endif
               </div>
               <div class="checkout__payment-methods">
-                <div class="form-check">
+                {{-- <div class="form-check">
                   <input class="form-check-input form-check-input_fill" type="radio" name="checkout_payment_method"
                     id="checkout_payment_method_1" checked>
                   <label class="form-check-label" for="checkout_payment_method_1">
@@ -229,43 +230,29 @@
                       reference.Your order will not be shipped until the funds have cleared in our account.
                     </p>
                   </label>
-                </div>
+                </div> --}}
                 <div class="form-check">
-                  <input class="form-check-input form-check-input_fill" type="radio" name="checkout_payment_method"
-                    id="checkout_payment_method_2">
-                  <label class="form-check-label" for="checkout_payment_method_2">
-                    Check payments
-                    <p class="option-detail">
-                      Phasellus sed volutpat orci. Fusce eget lore mauris vehicula elementum gravida nec dui. Aenean
-                      aliquam varius ipsum, non ultricies tellus sodales eu. Donec dignissim viverra nunc, ut aliquet
-                      magna posuere eget.
-                    </p>
+                  <input class="form-check-input form-check-input_fill" type="radio" name="mode" id="mode1" value="card">
+                  <label class="form-check-label" for="mode1">
+                    Debit or Credit Cart
+                   
                   </label>
                 </div>
                 <div class="form-check">
-                  <input class="form-check-input form-check-input_fill" type="radio" name="checkout_payment_method"
-                    id="checkout_payment_method_3">
-                  <label class="form-check-label" for="checkout_payment_method_3">
-                    Cash on delivery
-                    <p class="option-detail">
-                      Phasellus sed volutpat orci. Fusce eget lore mauris vehicula elementum gravida nec dui. Aenean
-                      aliquam varius ipsum, non ultricies tellus sodales eu. Donec dignissim viverra nunc, ut aliquet
-                      magna posuere eget.
-                    </p>
-                  </label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input form-check-input_fill" type="radio" name="checkout_payment_method"
-                    id="checkout_payment_method_4">
-                  <label class="form-check-label" for="checkout_payment_method_4">
+                  <input class="form-check-input form-check-input_fill" type="radio" name="mode" id="mode2" value="paypal">
+                  <label class="form-check-label" for="mode2">
                     Paypal
-                    <p class="option-detail">
-                      Phasellus sed volutpat orci. Fusce eget lore mauris vehicula elementum gravida nec dui. Aenean
-                      aliquam varius ipsum, non ultricies tellus sodales eu. Donec dignissim viverra nunc, ut aliquet
-                      magna posuere eget.
-                    </p>
+                    
                   </label>
                 </div>
+                <div class="form-check">
+                  <input class="form-check-input form-check-input_fill" type="radio" name="mode" id="mode3" value="cod">
+                  <label class="form-check-label" for="mode3">
+                    Cash on delivery
+                    
+                  </label>
+                </div>
+                
                 <div class="policy-text">
                   Your personal data will be used to process your order, support your experience throughout this
                   website, and for other purposes described in our <a href="terms.html" target="_blank">privacy
