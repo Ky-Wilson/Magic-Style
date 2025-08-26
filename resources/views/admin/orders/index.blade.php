@@ -48,6 +48,7 @@
                                                         <th class="text-center">Order Date</th>
                                                         <th class="text-center">Total Items</th>
                                                         <th class="text-center">Delivered On</th>
+                                                        <th class="text-center">Canceled On</th>
                                                         <th></th>
                                                     </tr>
                                                 </thead>
@@ -65,6 +66,7 @@
                                                         <td class="text-center">{{ $order->created_at }}</td>
                                                         <td class="text-center">{{ $order->orderItems->count() }}</td>
                                                         <td class="text-center">{{ $order->delivered_date}}</td>
+                                                        <td class="text-center">{{ $order->canceled_date}}</td>
                                                         <td class="text-center">
                                                             <a href="{{ route('admin.order_details', ['order_id' => $order->id]) }}">
                                                                 <div class="list-icon-function view-icon">

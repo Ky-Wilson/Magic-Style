@@ -44,6 +44,8 @@ Route::get('/order-confirmation', [CartController::class, 'order_confirmation'])
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/account-dashboard', [UserController::class, 'index'])->name('user.index');
+    Route::get('/account-orders', [UserController::class, 'orders'])->name('user.orders');
+    Route::get('/account-order/{order_id}/details', [UserController::class, 'order_details'])->name('user.order.details');
 });
 
 Route::middleware(['auth', AuthAdmin::class])->group(function () {
@@ -84,6 +86,7 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // Orders management routes
     Route::get('/admin/orders', [AdminController::class, 'orders'])->name('admin.orders');
     Route::get('/admin/order/{order_id}/details', [AdminController::class, 'order_details'])->name('admin.order_details');
+    Route::put('/admin/order/update-status', [AdminController::class, 'order_update_status'])->name('admin.update_order_status');
 });  
 
 
