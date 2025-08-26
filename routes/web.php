@@ -46,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account-dashboard', [UserController::class, 'index'])->name('user.index');
     Route::get('/account-orders', [UserController::class, 'orders'])->name('user.orders');
     Route::get('/account-order/{order_id}/details', [UserController::class, 'order_details'])->name('user.order.details');
+    Route::put('/account-order/cancel', [UserController::class, 'cancel_order'])->name('user.order.cancel');
 });
 
 Route::middleware(['auth', AuthAdmin::class])->group(function () {
@@ -84,10 +85,18 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
         Route::delete('/admin/coupon/{id}/delete', [AdminController::class, 'coupon_delete'])->name('admin.delete_coupon');
 
     // Orders management routes
-    Route::get('/admin/orders', [AdminController::class, 'orders'])->name('admin.orders');
-    Route::get('/admin/order/{order_id}/details', [AdminController::class, 'order_details'])->name('admin.order_details');
-    Route::put('/admin/order/update-status', [AdminController::class, 'order_update_status'])->name('admin.update_order_status');
-});  
+        Route::get('/admin/orders', [AdminController::class, 'orders'])->name('admin.orders');
+        Route::get('/admin/order/{order_id}/details', [AdminController::class, 'order_details'])->name('admin.order_details');
+        Route::put('/admin/order/update-status', [AdminController::class, 'order_update_status'])->name('admin.update_order_status');
+
+
+    //Sliders managements routes
+    Route::get('admin/slides', [AdminController::class, 'slides'])->name('admin.slides.index');
+    Route::get('admin/slide/add', [AdminController::class, 'slide_add'])->name('admin.slide.add');
+        Route::get('admin/slide/store', [AdminController::class, 'slide_store'])->name('admin.slide.store');
+
+
+ });  
 
 
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Transaction;
@@ -32,11 +33,22 @@ class UserController extends Controller
         }
     }
 
-    /* public function cancel_order(Request $request){
-        $order = Order::where('user_id', Auth::user()->id)->where('id', $request->order_id)->first();
-        if($order){
-            $order->status = 'cancelled';
-            $order->save();
-        }
-    } */
+    public function cancel_order(Request $request){
+    $order = Order::find($request->id); // Changer order_id en id
+    
+    if (!$order) {
+        return back()->with('error', 'Order not found!');
+    }
+    
+    // Vérifier si la commande peut être annulée
+    if (in_array($order->status, ['delivered', 'canceled'])) {
+        return back()->with('error', 'This order cannot be canceled!');
+    }
+    
+    $order->status = 'canceled';
+    $order->canceled_date = Carbon::now();
+    $order->save();
+    
+    return back()->with('status', 'Order canceled successfully!');
+}
 }

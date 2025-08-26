@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Brand;
 use App\Models\Order;
+use App\Models\Slide;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\Category;
@@ -86,7 +87,6 @@ class AdminController extends Controller
     public function GenerateBrandThumbnailsImage($image, $imageName){
         $destinationPath = public_path('uploads/brands');
         $img = image::read($image->path());
-            
         $img->cover(124, 124, "top")
             ->save($destinationPath.'/'.$imageName);
     }
@@ -569,11 +569,49 @@ class AdminController extends Controller
         return back()->with('status', 'order status updated succesfully !');
     }
 
-    /* public function order_delete($id){
-        $order = Order::find($id);
-        $order->delete();
+    public function slides(){
+        $slides = Slide::orderBy('id', 'DESC')->paginate(12);
+        return view('admin.slides.index', compact('slides'));
     }
- */
+
+    public function slide_add(){
+        return view('admin.slides.add');
+    }
+
+    public function slide_store(Request $request){
+        $request ->validate([
+            'tagline' => 'required',
+            'title' => 'required',
+            'subtitle' => 'required',
+            'link' => 'required',
+            'status' => 'required',
+            'image' => 'required|mine:png,jpg,jpeg|max:2048'
+        ]);
+        $slide = new Slide();
+        $slide -> tagline = $request->tagline;
+        $slide -> title = $request->title;
+        $slide -> subtitle = $request->subtitle;
+        $slide -> link = $request->link;
+        $slide -> status = $request->status;
+
+       $image = $request->file('image');
+            $file_extension = $request->file('image')->extension();
+            $file_name = Carbon::now()->timestamp.'.'.$file_extension;
+            $this->GenerateSlidehumbnailsImage($image, $file_name);
+            $slide->image = $file_name;
+            $slide->save();
+            return back()->route('admin.slides.index')->with("status", "Slide added successfully !");
+    }
+
+    public function GenerateSlidehumbnailsImage($image, $imageName){
+        $destinationPath = public_path('uploads/slides');
+        $img = image::read($image->path());
+            
+        $img->cover(400, 600, "top")
+            ->save($destinationPath.'/'.$imageName);
+    }
+
+    
 
     
 }

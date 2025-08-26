@@ -113,13 +113,16 @@
                                 <h5>Order Details</h5>
                             </div>
                             <div class="col-6 text-right">
-                                 <a class="btn btn-sm btn-danger" href="{{ route('user.orders') }}">Back</a>
+                                <a class="btn btn-sm btn-danger" href="{{ route('user.orders') }}">Back</a>
                             </div>
                         </div>
-                        
+
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-transaction">
+                        @if(Session::has('status'))
+                            <p class="alert alert-success">{{ Session::get('status') }}</p>
+                        @endif
+                            <table class="table table-bordered table-striped table-transaction">
                             <tr>
                                 <th>Order No</th>
                                 <td>{{ $order->id }}</td>
@@ -147,7 +150,7 @@
                                     <span class="badge bg-warning">ordered</span>
                                     @endif
                                 </td>
-                            
+                            </tr>
                         </table>
                     </div>
                 </div>
@@ -244,7 +247,7 @@
                                 <th>Total</th>
                                 <td>{{ $order->total }}</td>
                                 <th>Payment Mode</th>
-                                <td>{{ $transaction->mode }}</td>
+                                <td>{{ $transaction->mode ?? 'NA' }}</td>
                                 <th>Status</th>
                                 <td>
                                     @if($transaction->status == 'approved')
@@ -262,9 +265,74 @@
                         </tbody>
                     </table>
                 </div>
+
+
+                <div class="bg-box mt-5 text-right">
+                    @php
+                    $canCancelOrder = !in_array($order->status, ['delivered', 'canceled']);
+                    @endphp
+
+                    <form action="{{ route('user.order.cancel') }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="id" value="{{ $order->id }}"> <!-- Correction ici -->
+                        <button type="button"
+                            class="btn {{ $canCancelOrder ? 'btn-danger cancel-btn' : 'btn-secondary' }}" {{
+                            $canCancelOrder ? '' : 'disabled' }}>
+                            @if($canCancelOrder)
+                            Cancel Order
+                            @elseif($order->status == 'delivered')
+                            Order Delivered
+                            @else
+                            Order Canceled
+                            @endif
+                        </button>
+                    </form>
+
+                    @if(!$canCancelOrder)
+                    <div class="alert alert-info mt-3" style="text-align: left;">
+                        <i class="icon-info"></i>
+                        @if($order->status == 'delivered')
+                        This order has been delivered and can no longer be canceled.
+                        @else
+                        This order has already been canceled.
+                        @endif
+                    </div>
+                    @endif
+                </div>
             </div>
 
         </div>
     </section>
 </main>
 @endsection
+@push('scripts')
+<script>
+    $(document).on('click', '.cancel-btn', function(e) {
+    e.preventDefault();
+    
+    // Vérifier si le bouton est désactivé
+    if ($(this).prop('disabled')) {
+        return false;
+    }
+    
+    let form = $(this).closest('form');
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You will cancel this order!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Cancel Order",
+        cancelButtonText: "Keep Order"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+});
+
+</script>
+@endpush
