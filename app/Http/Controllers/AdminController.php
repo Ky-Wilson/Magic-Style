@@ -24,12 +24,18 @@ class AdminController extends Controller
         return view('admin.index');
     }
 // Brands management methods
-    public  function brands(){
+    /* public  function brands(){
         $brands = Brand::orderBy(
             'id', 'DESC'
         )->paginate(10);
         return view('admin.brands', compact('brands'));
-    }
+    } */
+   public function brands(){
+    $brands = Brand::withCount('products') // Charge le nombre de produits
+        ->orderBy('id', 'DESC')
+        ->paginate(10);
+    return view('admin.brands', compact('brands'));
+}
 
     public function add_brand(){
         return view('admin.add-brand');
@@ -104,10 +110,11 @@ class AdminController extends Controller
 // Categories management methods
 
     public function categories(){
-        // Logic to display categories
-        $categories = Category::orderBy('id', 'DESC')->paginate(10);
-        return view('admin.categories.index', compact('categories'));
-    }
+    $categories = Category::withCount('products') // Charge le nombre de produits
+        ->orderBy('id', 'DESC')
+        ->paginate(10);
+    return view('admin.categories.index', compact('categories'));
+}
 
     public function add_category(){
         return view('admin.categories.add');
@@ -578,38 +585,107 @@ class AdminController extends Controller
         return view('admin.slides.add');
     }
 
-    public function slide_store(Request $request){
-        $request ->validate([
-            'tagline' => 'required',
-            'title' => 'required',
-            'subtitle' => 'required',
-            'link' => 'required',
-            'status' => 'required',
-            'image' => 'required|mine:png,jpg,jpeg|max:2048'
-        ]);
-        $slide = new Slide();
-        $slide -> tagline = $request->tagline;
-        $slide -> title = $request->title;
-        $slide -> subtitle = $request->subtitle;
-        $slide -> link = $request->link;
-        $slide -> status = $request->status;
+public function slide_store(Request $request){
+    $request->validate([
+        'tagline' => 'required',
+        'title' => 'required',
+        'subtitle' => 'required',
+        'link' => 'required',
+        'status' => 'required',
+        'image' => 'required|mimes:png,jpg,jpeg|max:2048'
+    ]);
+    
+    $slide = new Slide();
+    $slide->tagline = $request->tagline;
+    $slide->title = $request->title;
+    $slide->subtitle = $request->subtitle;
+    $slide->link = $request->link;
+    $slide->status = $request->status;
 
-       $image = $request->file('image');
-            $file_extension = $request->file('image')->extension();
-            $file_name = Carbon::now()->timestamp.'.'.$file_extension;
-            $this->GenerateSlidehumbnailsImage($image, $file_name);
-            $slide->image = $file_name;
-            $slide->save();
-            return back()->route('admin.slides.index')->with("status", "Slide added successfully !");
-    }
+    $image = $request->file('image');
+    $file_extension = $request->file('image')->extension();
+    $file_name = Carbon::now()->timestamp.'.'.$file_extension;
+    $this->GenerateSlidehumbnailsImage($image, $file_name);
+    $slide->image = $file_name;
+    $slide->save();
+
+    return redirect()->route('admin.slides.index')->with("status", "Slide added successfully !");
+}
 
     public function GenerateSlidehumbnailsImage($image, $imageName){
         $destinationPath = public_path('uploads/slides');
-        $img = image::read($image->path());
-            
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
+        
+        $img = Image::read($image->path());  
         $img->cover(400, 600, "top")
             ->save($destinationPath.'/'.$imageName);
     }
+
+    public function slide_edit($id){
+        $slide = Slide::find($id);
+        return view('admin.slides.edit', compact('slide'));
+    }
+
+public function slide_update(Request $request, $id = null){
+    
+    $slideId = $id ?? $request->id;
+    
+    $request->validate([
+        'tagline' => 'required',
+        'title' => 'required',
+        'subtitle' => 'required',
+        'link' => 'required',
+        'status' => 'required',
+        'image' => 'nullable|mimes:png,jpg,jpeg|max:2048'
+    ]);
+    
+    $slide = Slide::findOrFail($slideId);
+    
+    $slide->tagline = $request->tagline;
+    $slide->title = $request->title;
+    $slide->subtitle = $request->subtitle;
+    $slide->link = $request->link;
+    $slide->status = $request->status;
+
+
+    if($request->hasFile('image')) {
+
+        if($slide->image && File::exists(public_path('uploads/slides/').'/'.$slide->image)) {
+            File::delete(public_path('uploads/slides/').'/'.$slide->image);
+        }
+        
+        $image = $request->file('image');
+        $file_extension = $image->extension();
+        $file_name = Carbon::now()->timestamp.'.'.$file_extension;
+        $this->GenerateSlidehumbnailsImage($image, $file_name);
+        $slide->image = $file_name;
+    }
+
+    $slide->save(); 
+
+    return redirect()->route('admin.slides.index')->with("status", "Slide updated successfully!");
+}
+
+public function slide_delete($id) {
+    try {
+        $slide = Slide::findOrFail($id);
+        
+        // Supprimer l'image du serveur si elle existe
+        if($slide->image && File::exists(public_path('uploads/slides/').'/'.$slide->image)) {
+            File::delete(public_path('uploads/slides/').'/'.$slide->image);
+        }
+        
+        // Supprimer le slide de la base de données
+        $slide->delete();
+        
+        return redirect()->route('admin.slides.index')->with('status', 'Slide supprimé avec succès !');
+        
+    } catch (\Exception $e) {
+        return redirect()->route('admin.slides.index')->with('error', 'Erreur lors de la suppression du slide.');
+    }
+}
 
     
 
