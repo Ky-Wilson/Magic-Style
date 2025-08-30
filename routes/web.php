@@ -45,6 +45,9 @@ Route::get('/order-confirmation', [CartController::class, 'order_confirmation'])
 Route::get('/contact-us', [HomeController::class, 'contact'])->name('contact.us');
 Route::post('/contact-us/store', [HomeController:: class, 'contact_store'])->name('contact.us.store');
 
+Route::get('/aboutus', [HomeController::class, 'aboutus'])->name('about.us');
+
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/account-dashboard', [UserController::class, 'index'])->name('user.index');
     Route::get('/account-orders', [UserController::class, 'orders'])->name('user.orders');
@@ -104,6 +107,8 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     //Contacts managements routes
         Route::get('/admin/contacts', [AdminController::class, 'contactUs'])->name('admin.contacts.us');
         Route::delete('/admin/contact/{id}/delete', [AdminController::class, 'contactUsdelete'])->name('admin.contact.delete');
+
+
 
 
         Route::get('/admin/users', [AdminController::class, 'getUsers'])->name('admin.get.users');

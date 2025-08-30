@@ -57,10 +57,10 @@
                     <td>
                       <div class="shopping-cart__product-item__detail">
                         <h4>{{ $item->name }}</h4>
-                        <ul class="shopping-cart__product-item__options">
+                        {{-- <ul class="shopping-cart__product-item__options">
                           <li>Color: Yellow</li>
                           <li>Size: L</li>
-                        </ul>
+                        </ul> --}}
                       </div>
                     </td>
                     <td>
@@ -504,20 +504,16 @@ async function updateQuantity(rowId, action) {
             
             updateCartTotals(data);
         } else {
-            // Afficher le message d'erreur du serveur de manière propre
             const errorMessage = data.message || 'Erreur lors de la mise à jour de la quantité';
             console.error('Server returned error:', errorMessage);
             
-            // Créer un message d'erreur temporaire dans l'interface
             showTemporaryMessage(errorMessage, 'error');
         }
     } catch (error) {
         console.error('Network/Connection error:', error);
         
-        // Message d'erreur plus convivial pour les erreurs réseau
         let userFriendlyMessage = 'Une erreur de connexion s\'est produite. Veuillez réessayer.';
         
-        // Si c'est une erreur de parsing JSON, c'est probablement une erreur serveur
         if (error.message.includes('Unexpected token') || error.message.includes('JSON')) {
             userFriendlyMessage = 'Le serveur a rencontré une erreur. Veuillez réessayer dans quelques instants.';
         }

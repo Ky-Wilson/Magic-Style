@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,8 +10,8 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-  <meta name="author" content="surfside media" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="author" content="surfside media" />
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/admin/css/animate.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/admin/css/animation.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/admin/css/bootstrap.css') }}">
@@ -24,6 +25,7 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/admin/css/custom.css') }}">
     @stack('styles')
 </head>
+
 <body class="body">
     <div id="wrapper">
         <div id="page" class="">
@@ -31,8 +33,10 @@
                 <div class="section-menu-left">
                     <div class="box-logo">
                         <a href="{{route('admin.index')}}" id="site-logo-inner">
-                            <img class="" id="logo_header_1" alt="" src=" {{-- {{ asset('assets/images/logo.png') }} --}}"
-                                data-light=" {{-- {{ asset('assets/images/logo.png') }} --}}" data-dark="{{-- {{ asset('assets/images/logo.png') }} --}}">
+                            <img class="" id="logo_header_1" alt=""
+                                src=" {{-- {{ asset('assets/images/logo.png') }} --}}"
+                                data-light=" {{-- {{ asset('assets/images/logo.png') }} --}}"
+                                data-dark="{{-- {{ asset('assets/images/logo.png') }} --}}">
                         </a>
                         <div class="button-show-hide">
                             <i class="icon-menu-left"></i>
@@ -88,7 +92,7 @@
                                         </li>
                                     </ul>
                                 </li>
-                                
+
                                 <li class="menu-item has-children">
                                     <a href="javascript:void(0);" class="menu-item-button">
                                         <div class="icon"><i class="icon-layers"></i></div>
@@ -152,12 +156,7 @@
                                     </a>
                                 </li>
 
-                                <li class="menu-item">
-                                    <a href="settings.html" class="">
-                                        <div class="icon"><i class="icon-settings"></i></div>
-                                        <div class="text">Settings</div>
-                                    </a>
-                                </li>
+
                                 <li class="menu-item">
                                     <form method="POST" action="{{route('logout')}}" id="logout-form">
                                         @csrf
@@ -167,7 +166,7 @@
                                             <div class="text">Log out</div>
                                         </a>
                                     </form>
-                                    
+
                                 </li>
                             </ul>
                         </div>
@@ -457,7 +456,7 @@
 
                         @yield('content')
                         <div class="bottom-page">
-                            <div class="body-text">Copyright © 2024 SurfsideMedia</div>
+                            <div class="body-text">Copyright © 2024 SoftSys</div>
                         </div>
                     </div>
                 </div>
@@ -467,8 +466,8 @@
 
     <script src="{{ asset('assets/admin/js/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/admin/js/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/bootstrap-select.min.js') }}"></script>   
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>    
+    <script src="{{ asset('assets/admin/js/bootstrap-select.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/admin/js/apexcharts/apexcharts.js') }}"></script>
     <script src="{{ asset('assets/admin/js/main.js') }}"></script>
     {{-- <script>
@@ -569,6 +568,7 @@
             jQuery(window).on("resize", function () { });
         })(jQuery);
     </script> --}}
-     @stack('scripts')
+    @stack('scripts')
 </body>
+
 </html>

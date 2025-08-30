@@ -16,7 +16,6 @@ use Surfsidemedia\Shoppingcart\Facades\Cart;
 
 class CartController extends Controller
 {
-    // Ajouter cette méthode pour nettoyer les données de session liées au panier
     private function clearUserCartSession() {
         Session::forget(['checkout', 'discounts', 'coupon', 'order_id']);
         Cart::instance('cart')->destroy();
@@ -690,14 +689,11 @@ class CartController extends Controller
             $transaction->save();
         }
 
-        // Nettoyer complètement les données de session après la commande
         $this->clearUserCartSession();
         
-        // Définir seulement l'ID de commande pour la page de confirmation
         Session::put('order_id', $order->id);
-        Session::put('order_user_id', $user_id); // Sécuriser l'ordre avec l'ID utilisateur
+        Session::put('order_user_id', $user_id);
         
-        // Load the order with its relationships
         $order->load(['orderItems.product', 'transaction']);
         
         return view('order_confirmation', compact('order'));
@@ -711,24 +707,19 @@ class CartController extends Controller
             return;
         }
         
-        // Récupérer les données de la session de manière sécurisée
         $discounts = Session::get('discounts');
         
-        // FIX: Check if discounts is null or not an array before accessing
         if (!is_array($discounts)) {
             $discounts = null;
         }
         
-        // Vérifier que les remises appartiennent à l'utilisateur actuel
         if (Auth::check() && is_array($discounts) && isset($discounts['user_id']) && $discounts['user_id'] !== Auth::id()) {
             Session::forget(['discounts', 'coupon']);
             $discounts = null;
         }
         
-        // Vérifier si la session 'discounts' existe et est un tableau valide
         if(Session::has('coupon') && is_array($discounts)){
             Session::put('checkout',[
-                // FIX: Use null coalescing operators to prevent null array access
                 'discount' => $this->cleanNumericValue($discounts['discount'] ?? 0),
                 'subtotal' => $this->cleanNumericValue($discounts['subtotal'] ?? Cart::instance('cart')->subtotal()),
                 'tax' => $this->cleanNumericValue($discounts['tax'] ?? Cart::instance('cart')->tax()),
@@ -736,7 +727,6 @@ class CartController extends Controller
             ]);
         }
         else {
-            // FIX: Logique de secours avec valeurs numériques nettoyées
             Session::put('checkout',[
                 'discount' => 0,
                 'subtotal' => $this->cleanNumericValue(Cart::instance('cart')->subtotal()),
@@ -751,13 +741,11 @@ class CartController extends Controller
         $orderId = Session::get('order_id');
         $orderUserId = Session::get('order_user_id');
         
-        // Vérifier que la commande appartient à l'utilisateur actuel
         if (Auth::check() && $orderUserId && $orderUserId !== Auth::id()) {
             Session::forget(['order_id', 'order_user_id']);
             return redirect()->route('cart.index')->with('error', 'Commande non trouvée.');
         }
         
-        // Charger la commande avec toutes ses relations
         $order = Order::with(['orderItems.product', 'transaction'])->find($orderId);
         
         if (!$order) {

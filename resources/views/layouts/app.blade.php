@@ -1,13 +1,14 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- CSRF Token -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+  <!-- CSRF Token -->
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+  <title>{{ config('app.name', 'Laravel') }}</title>
 
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
   <meta name="author" content="surfside media" />
@@ -16,7 +17,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap"
     rel="stylesheet">
-        <link rel="stylesheet" type="text/css" href="{{ asset('assets/admin/css/sweetalert.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ asset('assets/admin/css/sweetalert.min.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Allura&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('assets/css/plugins/swiper.min.css') }}" type="text/css" />
   <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" type="text/css" />
@@ -24,8 +25,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
     crossorigin="anonymous" referrerpolicy="no-referrer">
-    @stack('styles')
+  @stack('styles')
 </head>
+
 <body class="gradient-bg">
   <svg class="d-none">
     <symbol id="icon_nav" viewBox="0 0 25 18">
@@ -277,13 +279,13 @@
       </div>
 
       <a href="{{ route('cart.index') }}" class="header-tools__item header-tools__cart">
-            <svg class="d-block" width="20" height="20" viewBox="0 0 20 20" fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <use href="#icon_cart" />
-            </svg>
-            @if(Cart::instance('cart')->content()->count() > 0)
-              <span class="cart-amount d-block position-absolute js-cart-items-count">{{ (Cart::instance('cart')->content()->count()) }}</span>
-            @endif
+        <svg class="d-block" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <use href="#icon_cart" />
+        </svg>
+        @if(Cart::instance('cart')->content()->count() > 0)
+        <span class="cart-amount d-block position-absolute js-cart-items-count">{{
+          (Cart::instance('cart')->content()->count()) }}</span>
+        @endif
       </a>
     </div>
 
@@ -322,7 +324,7 @@
               <a href="{{ route('cart.index') }}" class="navigation__link">Cart</a>
             </li>
             <li class="navigation__item">
-              <a href="about.html" class="navigation__link">About</a>
+              <a href="{{ route('about.us') }}" class="navigation__link">About</a>
             </li>
             <li class="navigation__item">
               <a href="{{ route('contact.us') }}" class="navigation__link">Contact</a>
@@ -334,21 +336,21 @@
       <div class="border-top mt-auto pb-2">
         <div class="customer-links container mt-4 mb-2 pb-1">
           <svg class="d-inline-block align-middle" width="20" height="20" viewBox="0 0 20 20" fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <use href="#icon_user" />
+            xmlns="http://www.w3.org/2000/svg">
+            <use href="#icon_user" />
           </svg>
 
           @guest
-              <a href="{{ route('login') }}" class="d-inline-block ms-2 text-uppercase align-middle fw-medium">
-                  My Account
-              </a>
+          <a href="{{ route('login') }}" class="d-inline-block ms-2 text-uppercase align-middle fw-medium">
+            My Account
+          </a>
           @else
-              <a href="{{ Auth::user()->utype === 'ADM' ? route('admin.index') : route('user.index') }}"
-                class="d-inline-block ms-2 text-uppercase align-middle fw-medium">
-                  {{ Auth::user()->name }}
-              </a>
+          <a href="{{ Auth::user()->utype === 'ADM' ? route('admin.index') : route('user.index') }}"
+            class="d-inline-block ms-2 text-uppercase align-middle fw-medium">
+            {{ Auth::user()->name }}
+          </a>
           @endguest
-      </div>
+        </div>
 
 
 
@@ -424,7 +426,7 @@
               <a href="{{ route('cart.index') }}" class="navigation__link">Cart</a>
             </li>
             <li class="navigation__item">
-              <a href="about.html" class="navigation__link">About</a>
+              <a href="{{ route('about.us') }}" class="navigation__link">About</a>
             </li>
             <li class="navigation__item">
               <a href="{{ route('contact.us') }}" class="navigation__link">Contact</a>
@@ -490,7 +492,8 @@
           </div>
           @else
           <div class="header-tools__item hover-container">
-            <a href="{{ Auth::user()->utype === 'ADM' ? route('admin.index') : route('user.index') }}" class="header-tools__item">
+            <a href="{{ Auth::user()->utype === 'ADM' ? route('admin.index') : route('user.index') }}"
+              class="header-tools__item">
               <span class="pr-6px">{{ Auth::user()->name }}</span>
               <svg class="d-block" width="20" height="20" viewBox="0 0 20 20" fill="none"
                 xmlns="http://www.w3.org/2000/svg">
@@ -505,7 +508,8 @@
               <use href="#icon_heart" />
             </svg>
             @if(Cart::instance('wishlist')->content()->count() > 0)
-              <span class="cart-amount d-block position-absolute js-cart-items-count">{{ (Cart::instance('wishlist')->content()->count()) }}</span>
+            <span class="cart-amount d-block position-absolute js-cart-items-count">{{
+              (Cart::instance('wishlist')->content()->count()) }}</span>
             @endif
           </a>
 
@@ -515,14 +519,15 @@
               <use href="#icon_cart" />
             </svg>
             @if(Cart::instance('cart')->content()->count() > 0)
-              <span class="cart-amount d-block position-absolute js-cart-items-count">{{ (Cart::instance('cart')->content()->count()) }}</span>
+            <span class="cart-amount d-block position-absolute js-cart-items-count">{{
+              (Cart::instance('cart')->content()->count()) }}</span>
             @endif
           </a>
         </div>
       </div>
     </div>
   </header>
-    @yield('content')
+  @yield('content')
 
 
   <hr class="mt-5 text-secondary" />
@@ -531,12 +536,12 @@
       <div class="row row-cols-lg-5 row-cols-2">
         <div class="footer-column footer-store-info col-12 mb-4 mb-lg-0">
           <div class="logo">
-            <a href="{{route('home.index')}}">
+            <a href="{{ route('home.index') }}">
               <img src="{{ asset('assets/images/logo.png') }}" alt="Magic Style" class="logo__image d-block" />
             </a>
           </div>
           <p class="footer-address">123 Beach Avenue, Magic City, CA 00000</p>
-          <p class="m-0"><strong class="fw-medium">magic@gmail</strong></p>
+          <p class="m-0"><strong class="fw-medium">magic@gmail.com</strong></p>
           <p><strong class="fw-medium">+1 000-000-0000</strong></p>
 
           <ul class="social-links list-unstyled d-flex flex-wrap mb-0">
@@ -584,49 +589,67 @@
           </ul>
         </div>
 
-        <div class="footer-column footer-menu mb-4 mb-lg-0">
-          <h6 class="sub-menu__title text-uppercase">Company</h6>
-          <ul class="sub-menu__list list-unstyled">
-            <li class="sub-menu__item"><a href="about-2.html" class="menu-link menu-link_us-s">About Us</a></li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Careers</a></li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Affiliates</a></li>
-            <li class="sub-menu__item"><a href="blog_list1.html" class="menu-link menu-link_us-s">Blog</a></li>
-            <li class="sub-menu__item"><a href="contact-2.html" class="menu-link menu-link_us-s">Contact Us</a></li>
-          </ul>
-        </div>
 
         <div class="footer-column footer-menu mb-4 mb-lg-0">
           <h6 class="sub-menu__title text-uppercase">Shop</h6>
           <ul class="sub-menu__list list-unstyled">
-            <li class="sub-menu__item"><a href="shop2.html" class="menu-link menu-link_us-s">New Arrivals</a></li>
-            <li class="sub-menu__item"><a href="shop3.html" class="menu-link menu-link_us-s">Accessories</a></li>
-            <li class="sub-menu__item"><a href="shop4.html" class="menu-link menu-link_us-s">Men</a></li>
-            <li class="sub-menu__item"><a href="shop5.html" class="menu-link menu-link_us-s">Women</a></li>
-            <li class="sub-menu__item"><a href="shop1.html" class="menu-link menu-link_us-s">Shop All</a></li>
+            <li class="sub-menu__item"><a href="{{ route('shop.index') }}" class="menu-link menu-link_us-s">New
+                Arrivals</a></li>
+            <li class="sub-menu__item"><a href="{{ route('shop.index') }}"
+                class="menu-link menu-link_us-s">Accessories</a></li>
+            <li class="sub-menu__item"><a href="{{ route('shop.index') }}" class="menu-link menu-link_us-s">Dresses</a>
+            </li>
+            <li class="sub-menu__item"><a href="{{ route('shop.index') }}" class="menu-link menu-link_us-s">Women</a>
+            </li>
+            <li class="sub-menu__item"><a href="{{ route('shop.index') }}" class="menu-link menu-link_us-s">Shop All</a>
+            </li>
           </ul>
         </div>
 
         <div class="footer-column footer-menu mb-4 mb-lg-0">
-          <h6 class="sub-menu__title text-uppercase">Help</h6>
+          <h6 class="sub-menu__title text-uppercase">Account</h6>
           <ul class="sub-menu__list list-unstyled">
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Customer Service</a></li>
-            <li class="sub-menu__item"><a href="account_dashboard.html" class="menu-link menu-link_us-s">My Account</a>
+            <li class="sub-menu__item"><a href="{{ route('contact.us') }}" class="menu-link menu-link_us-s">Customer
+                Service</a></li>
+            <li class="sub-menu__item">
+              @auth
+              <a href="{{ route('user.index') }}" class="menu-link menu-link_us-s">My Account</a>
+              @else
+              <a href="{{ route('login') }}" class="menu-link menu-link_us-s">My Account</a>
+              @endauth
             </li>
-            <li class="sub-menu__item"><a href="store_location.html" class="menu-link menu-link_us-s">Find a Store</a>
+            <li class="sub-menu__item"><a href="{{ route('cart.index') }}" class="menu-link menu-link_us-s">My Cart</a>
             </li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Legal & Privacy</a></li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Gift Card</a></li>
+            <li class="sub-menu__item"><a href="{{ route('wishlist.index') }}"
+                class="menu-link menu-link_us-s">Wishlist</a></li>
+            <li class="sub-menu__item"><a href="{{ route('cart.checkout') }}"
+                class="menu-link menu-link_us-s">Checkout</a></li>
           </ul>
         </div>
 
         <div class="footer-column footer-menu mb-4 mb-lg-0">
           <h6 class="sub-menu__title text-uppercase">Categories</h6>
           <ul class="sub-menu__list list-unstyled">
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Shirts</a></li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Jeans</a></li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Shoes</a></li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Bags</a></li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Shop All</a></li>
+            @if(isset($categories) && $categories->count() > 0)
+            @foreach($categories->take(5) as $category)
+            <li class="sub-menu__item">
+              <a href="{{ route('shop.index', ['categories' => $category->id]) }}" class="menu-link menu-link_us-s">
+                {{ $category->name }}
+              </a>
+            </li>
+            @endforeach
+            @else
+            <li class="sub-menu__item"><a href="{{ route('shop.index') }}" class="menu-link menu-link_us-s">Tops</a>
+            </li>
+            <li class="sub-menu__item"><a href="{{ route('shop.index') }}" class="menu-link menu-link_us-s">Dresses</a>
+            </li>
+            <li class="sub-menu__item"><a href="{{ route('shop.index') }}" class="menu-link menu-link_us-s">Shoes</a>
+            </li>
+            <li class="sub-menu__item"><a href="{{ route('shop.index') }}" class="menu-link menu-link_us-s">Bags</a>
+            </li>
+            <li class="sub-menu__item"><a href="{{ route('shop.index') }}" class="menu-link menu-link_us-s">Shop All</a>
+            </li>
+            @endif
           </ul>
         </div>
       </div>
@@ -634,10 +657,11 @@
 
     <div class="footer-bottom">
       <div class="container d-md-flex align-items-center">
-        <span class="footer-copyright me-auto">©2025 SoftSys</span>
+        <span class="footer-copyright me-auto">©2025 Magic Style - Women's Fashion</span>
         <div class="footer-settings d-md-flex align-items-center">
-          <a href="privacy-policy.html">Privacy Policy</a> &nbsp;|&nbsp; <a href="terms-conditions.html">Terms &amp;
-            Conditions</a>
+          <a href="#" class="menu-link menu-link_us-s">Privacy Policy</a> &nbsp;|&nbsp;
+          <a href="#" class="menu-link menu-link_us-s">Terms & Conditions</a> &nbsp;|&nbsp;
+          <a href="{{ route('contact.us') }}" class="menu-link menu-link_us-s">Support</a>
         </div>
       </div>
     </div>
@@ -687,10 +711,11 @@
   <script src="{{ asset('assets/js/plugins/jquery.min.js') }}"></script>
   <script src="{{ asset('assets/js/plugins/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ asset('assets/js/plugins/bootstrap-slider.min.js') }}"></script>
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>    
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="{{ asset('assets/js/plugins/swiper.min.js') }}"></script>
   <script src="{{ asset('assets/js/plugins/countdown.js') }}"></script>
   <script src="{{ asset('assets/js/theme.js') }}"></script>
   @stack('scripts')
 </body>
+
 </html>
