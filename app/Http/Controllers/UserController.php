@@ -34,13 +34,12 @@ class UserController extends Controller
     }
 
     public function cancel_order(Request $request){
-    $order = Order::find($request->id); // Changer order_id en id
+    $order = Order::find($request->id); 
     
     if (!$order) {
         return back()->with('error', 'Order not found!');
     }
     
-    // Vérifier si la commande peut être annulée
     if (in_array($order->status, ['delivered', 'canceled'])) {
         return back()->with('error', 'This order cannot be canceled!');
     }
@@ -50,5 +49,6 @@ class UserController extends Controller
     $order->save();
     
     return back()->with('status', 'Order canceled successfully!');
-}
+    }
+
 }

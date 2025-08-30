@@ -2,21 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
+use App\Http\Controllers\Controller;
 use App\Models\Brand;
-use App\Models\Order;
-use App\Models\Slide;
-use App\Models\Coupon;
-use App\Models\Contact;
-use App\Models\Product;
 use App\Models\Category;
+use App\Models\Contact;
+use App\Models\Coupon;
+use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
+use App\Models\Slide;
 use App\Models\Transaction;
-use Illuminate\Support\Str;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Intervention\Image\Laravel\Facades\Image;
 
 class AdminController extends Controller
@@ -676,6 +678,43 @@ public function contactUsdelete($id){
     $contact = Contact::find($id);
     $contact ->delete();
     return redirect()->route('admin.contacts.us')->with('status', 'message has been deleted succesffully !');
+}
+
+public function getUsers(){
+    $users = User::where('utype', '!=', 'ADM')
+                 ->orderBy('created_at', 'DESC')
+                 ->paginate(10);
+    return view('admin.users.index', compact('users'));
+}
+
+public function editUser($id){
+    $user = User::findOrFail($id);
+    return view('admin.users.edit', compact('user'));
+}
+
+public function updateUsers(Request $request, $id){
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users,email,'.$id,
+        'mobile' => 'required|string|max:255|unique:users,mobile,'.$id,
+        'utype' => 'required|in:USR,ADM',
+        'password' => 'nullable|min:8|confirmed',
+    ]);
+
+    $user = User::findOrFail($id);
+    
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->mobile = $request->mobile;
+    $user->utype = $request->utype;
+    
+    if($request->filled(key: 'password')){
+        $user->password = Hash::make($request->password);
+    }
+    
+    $user->save();
+    
+    return redirect()->route('admin.get.users')->with('status', 'User updated successfully!');
 }
 
     
