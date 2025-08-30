@@ -42,6 +42,9 @@ Route::post('/place-an-order', [CartController::class, 'place_an_order'])->name(
 Route::get('/order-confirmation', [CartController::class, 'order_confirmation'])->name('cart.order.confirmation');
 
 
+Route::get('/contact-us', [HomeController::class, 'contact'])->name('contact.us');
+Route::post('/contact-us/store', [HomeController:: class, 'contact_store'])->name('contact.us.store');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/account-dashboard', [UserController::class, 'index'])->name('user.index');
     Route::get('/account-orders', [UserController::class, 'orders'])->name('user.orders');
@@ -91,12 +94,16 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
 
 
     //Sliders managements routes
-    Route::get('/admin/slides', [AdminController::class, 'slides'])->name('admin.slides.index');
-    Route::get('/admin/slide/add', [AdminController::class, 'slide_add'])->name('admin.slide.add');
-    Route::post('/admin/slide/store', [AdminController::class, 'slide_store'])->name('admin.slide.store');
-    Route::get('/admin/slide/{id}/edit', [AdminController::class, 'slide_edit'])->name('admin.slide.edit');
-    Route::put('/admin/slide/update', [AdminController::class, 'slide_update'])->name('admin.slide.update');
-    Route::delete('/admin/slide/delete/{id}', [AdminController::class, 'slide_delete'])->name('admin.slide.delete');
+        Route::get('/admin/slides', [AdminController::class, 'slides'])->name('admin.slides.index');
+        Route::get('/admin/slide/add', [AdminController::class, 'slide_add'])->name('admin.slide.add');
+        Route::post('/admin/slide/store', [AdminController::class, 'slide_store'])->name('admin.slide.store');
+        Route::get('/admin/slide/{id}/edit', [AdminController::class, 'slide_edit'])->name('admin.slide.edit');
+        Route::put('/admin/slide/update', [AdminController::class, 'slide_update'])->name('admin.slide.update');
+        Route::delete('/admin/slide/delete/{id}', [AdminController::class, 'slide_delete'])->name('admin.slide.delete');
+
+    //COntacts managements routes
+        Route::get('/admin/contacts', [AdminController::class, 'contactUs'])->name('admin.contacts.us');
+        Route::delete('/admin/contact/{id}/delete', [AdminController::class, 'contactUsdelete'])->name('admin.contact.delete');
 
  });  
 

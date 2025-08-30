@@ -3,7 +3,7 @@
 <div class="main-content-inner">
     <div class="main-content-wrap">
         <div class="flex items-center flex-wrap justify-between gap20 mb-27">
-            <h3>Coupons</h3>
+            <h3>All Messages</h3>
             <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                 <li>
                     <a href="{{ route('admin.index') }}">
@@ -14,7 +14,7 @@
                     <i class="icon-chevron-right"></i>
                 </li>
                 <li>
-                    <div class="text-tiny">Coupons</div>
+                    <div class="text-tiny">All Messages</div>
                 </li>
             </ul>
         </div>
@@ -31,8 +31,7 @@
                         </div>
                     </form>
                 </div>
-                <a class="tf-button style-1 w208" href="{{ route('admin.add_coupon') }}"><i class="icon-plus"></i>Add
-                    new</a>
+                
             </div>
             <div class="wg-table table-all-user">
                 <div class="table-responsive">
@@ -43,32 +42,26 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Code</th>
-                                <th>Type</th>
-                                <th>Value</th>
-                                <th>Cart Value</th>
-                                <th>Expiry Date</th>
+                                <th>name</th>
+                                <th>phone</th>
+                                <th>email</th>
+                                <th>Message</th>
+                                <th>Send Date</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($coupons as $coupon)
+                            @foreach($contacts as $contact)
                             <tr>
-                                <td>{{ $coupon->id }}</td>
-                                <td>{{ $coupon->code }}</td>
-                                <td>{{ $coupon->type }}</td>
-                                <td>{{ $coupon->value }}</td>
-                                <td>{{ $coupon->cart_value }}</td>
-                                <td>{{ $coupon->expiry_date }}</td>
+                                <td>{{ $contact->id }}</td>
+                                <td>{{ $contact->name }}</td>
+                                <td>{{ $contact->phone }}</td>
+                                <td>{{ $contact->email }}</td>
+                                <td>{{ $contact->comment }}</td>
+                                <td>{{ $contact->created_at }}</td>
                                 <td>
                                     <div class="list-icon-function">
-                                        <a href="{{ route('admin.edit_coupon', $coupon->id) }}" class="edit"
-                                            title="Edit">
-                                            <div class="item edit">
-                                                <i class="icon-edit-3"></i>
-                                            </div>
-                                        </a>
-                                        <form action="{{ route('admin.delete_coupon', ['id' => $coupon->id]) }}"
+                                        <form action="{{ route('admin.contact.delete', ['id' => $contact->id]) }}"
                                             method="POST">
                                             @csrf
                                             @method('DELETE')
@@ -87,7 +80,7 @@
             </div>
             <div class="divider"></div>
             <div class="flex items-center justify-between flex-wrap gap10 wgp-pagination">
-                {{ $coupons->links('pagination::bootstrap-5') }}
+                {{ $contacts->links('pagination::bootstrap-5') }}
             </div>
         </div>
     </div>
@@ -101,7 +94,7 @@
 
     Swal.fire({
         title: "Are you sure?",
-        text: "You will not be able to recover this category!",
+        text: "You will not be able to recover this message !",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#dc3545",

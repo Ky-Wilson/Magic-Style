@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Order;
 use App\Models\Slide;
 use App\Models\Coupon;
+use App\Models\Contact;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\OrderItem;
@@ -664,6 +665,17 @@ public function slide_delete($id) {
     } catch (\Exception $e) {
         return redirect()->route('admin.slides.index')->with('error', 'Erreur lors de la suppression du slide.');
     }
+}
+
+public function contactUs(){
+    $contacts = Contact::orderBy('created_at', 'DESC')->paginate(10);
+    return view('admin.contact', compact('contacts'));
+}
+
+public function contactUsdelete($id){
+    $contact = Contact::find($id);
+    $contact ->delete();
+    return redirect()->route('admin.contacts.us')->with('status', 'message has been deleted succesffully !');
 }
 
     
