@@ -13,6 +13,7 @@ use App\Models\OrderItem;
 use App\Models\Transaction;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Laravel\Facades\Image;
@@ -21,17 +22,75 @@ class AdminController extends Controller
 {
     //
     public function index(){
-        return view('admin.index');
-    }
+    $orders = Order::orderBy('created_at', 'DESC')->get()->take(10);
+    
+    $dashboardDatas = DB::select("SELECT 
+        SUM(total) AS TotalAmount,
+        SUM(IF(status = 'ordered', total, 0)) AS TotalOrderedAmount,
+        SUM(IF(status = 'delivered', total, 0)) AS TotalDeliveredAmount,
+        SUM(IF(status = 'canceled', total, 0)) AS TotalCanceledAmount,
+        COUNT(*) AS Total,
+        SUM(IF(status = 'ordered', 1, 0)) AS TotalOrdered,
+        SUM(IF(status = 'delivered', 1, 0)) AS TotalDelivered,
+        SUM(IF(status = 'canceled', 1, 0)) AS TotalCanceled
+        FROM orders 
+    ");
+    $monthlyDatas = DB::select("
+        SELECT
+            M.id As MonthNo,
+            M.name As MonthName,
+            IFNULL(D.TotalAmount, 0) As TotalAmount,
+            IFNULL(D.TotalOrderedAmount, 0) As TotalOrderedAmount,
+            IFNULL(D.TotalDeliveredAmount, 0) As TotalDeliveredAmount,
+            IFNULL(D.TotalCanceledAmount, 0) As TotalCanceledAmount
+        FROM
+            month_names M
+        LEFT JOIN (
+            SELECT
+                MONTH(created_at) As MonthNo,
+                sum(total) As TotalAmount,
+                sum(if(status='ordered', total, 0)) As TotalOrderedAmount,
+                sum(if(status='delivered', total, 0)) As TotalDeliveredAmount,
+                sum(if(status='canceled', total, 0)) As TotalCanceledAmount
+            FROM
+                orders
+            WHERE
+                YEAR(created_at) = YEAR(NOW())
+            GROUP BY
+                MONTH(created_at)
+        ) D ON D.MonthNo = M.id
+        ORDER BY
+            M.id
+    ");
+
+    $AmountM = implode(',', collect($monthlyDatas)->pluck('TotalAmount')->toArray());
+    $OrderedAmountM = implode(',', collect($monthlyDatas)->pluck('TotalOrderedAmount')->toArray());
+    $DeliveredAmountM = implode(',', collect($monthlyDatas)->pluck('TotalDeliveredAmount')->toArray());
+    $CanceledAmountM = implode(',', collect($monthlyDatas)->pluck('TotalCanceledAmount')->toArray());
+
+
+    $TotalAmount = collect($monthlyDatas)->sum('TotalAmount');
+    $TotalOrderedAmount = collect($monthlyDatas)->sum('TotalOrderedAmount');
+    $TotalDeliveredAmount = collect($monthlyDatas)->sum('TotalDeliveredAmount');
+    $TotalCanceledAmount = collect($monthlyDatas)->sum('TotalCanceledAmount');
+
+    return view('admin.index', 
+    compact(
+        'orders',
+         'dashboardDatas',
+          'AmountM',
+          'OrderedAmountM',
+          'DeliveredAmountM',
+          'CanceledAmountM',
+          'TotalAmount',
+          'TotalOrderedAmount',
+          'TotalDeliveredAmount',
+          'TotalCanceledAmount',
+        ));
+}
 // Brands management methods
-    /* public  function brands(){
-        $brands = Brand::orderBy(
-            'id', 'DESC'
-        )->paginate(10);
-        return view('admin.brands', compact('brands'));
-    } */
    public function brands(){
-    $brands = Brand::withCount('products') // Charge le nombre de produits
+    $brands = Brand::withCount('products')
         ->orderBy('id', 'DESC')
         ->paginate(10);
     return view('admin.brands', compact('brands'));
@@ -110,7 +169,7 @@ class AdminController extends Controller
 // Categories management methods
 
     public function categories(){
-    $categories = Category::withCount('products') // Charge le nombre de produits
+    $categories = Category::withCount('products')
         ->orderBy('id', 'DESC')
         ->paginate(10);
     return view('admin.categories.index', compact('categories'));
@@ -192,7 +251,6 @@ class AdminController extends Controller
     
     // products management methods
     public function products(){
-        // Logic to display products
         $products = Product::orderBy('created_at', 'DESC')->paginate(10);
         return view('admin.products.index', data: compact('products'));
     }
@@ -202,82 +260,6 @@ class AdminController extends Controller
         $brands = Brand::select('id', 'name')->orderBy('name', 'ASC')->get();
         return view('admin.products.add', compact('categories', 'brands'));
     }
-
-   /*  public function store_product(Request $request){
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'required|unique:products,slug',
-            'short_description' => 'required|string|max:255',
-            'description' => 'required|string',
-            'regular_price' => 'required',
-            'sale_price' => 'nullable',
-            'SKU' => 'required',
-            'stock_status' => 'required',
-            'featured' => 'required',
-            'quantity' => 'required',
-            'image' => 'mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'category_id' => 'required',
-            'brand_id' => 'required',
-        ]);
-
-        $product = new Product();
-        $product->name = $request->name;
-        $product->slug = Str::slug($request->name);
-        $product->short_description = $request->short_description;
-        $product->description = $request->description;
-        $product->regular_price = $request->regular_price;
-        $product->sale_price = $request->sale_price;
-        $product->SKU = $request->SKU;
-        $product->stock_status = $request->stock_status;
-        $product->featured = $request->featured;
-        $product->quantity = $request->quantity;
-        $product->category_id = $request->category_id;
-        $product->brand_id = $request->brand_id;
-
-        $current_timestamp = Carbon::now()->timestamp;
-        
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = $current_timestamp. '.' . $image->extension();
-            $this->GenerateProductThumbnailImage($image, $current_timestamp);
-            $product->image = $imageName;
-        }
-
-        $gallery_arr = array();
-        $gallery_images = "";
-        $counter = 1;
-        if ($request->hasFile('images')) {
-            $allowedfileExtension = ['jpeg', 'png', 'jpg', 'gif', 'svg'];
-            $files = $request->file('images');
-            foreach ($files as $file) {
-                $gextension = $file->getClientOriginalExtension();
-                $gcheck = in_array($gextension, $allowedfileExtension);
-                if ($gcheck) {
-                    $gfileName = $current_timestamp . '-' . $counter . '.' . $gextension;
-                    $this->GenerateProductThumbnailImage($file, $gfileName);
-                    array_push($gallery_arr, $gfileName);
-                    $counter = $counter + 1;
-                }
-            }
-            $gallery_images = implode(',', $gallery_arr);
-        }
-        $product->images = $gallery_images;
-
-        $product->save();
-        return redirect()->route('admin.products')->with('status', 'Product added successfully!');
-    }
-
-    public function GenerateProductThumbnailImage($image, $imageName){
-        $destinationPathThumbnail = public_path('uploads/products/thumbnails');
-        $destinationPath = public_path('uploads/products');
-        $img = image::read($image->path());
-            
-        $img->cover(540, 689, "top")
-            ->save($destinationPath.'/'.$imageName);
-
-         $img->cover(104, 104)
-            ->save($destinationPathThumbnail.'/'.$imageName);
-    } */
     
    public function store_product(Request $request)
     {
@@ -671,13 +653,10 @@ public function slide_update(Request $request, $id = null){
 public function slide_delete($id) {
     try {
         $slide = Slide::findOrFail($id);
-        
-        // Supprimer l'image du serveur si elle existe
-        if($slide->image && File::exists(public_path('uploads/slides/').'/'.$slide->image)) {
+            if($slide->image && File::exists(public_path('uploads/slides/').'/'.$slide->image)) {
             File::delete(public_path('uploads/slides/').'/'.$slide->image);
         }
         
-        // Supprimer le slide de la base de données
         $slide->delete();
         
         return redirect()->route('admin.slides.index')->with('status', 'Slide supprimé avec succès !');

@@ -28,18 +28,11 @@
     <div id="wrapper">
         <div id="page" class="">
             <div class="layout-wrap">
-
-                <!-- <div id="preload" class="preload-container">
-    <div class="preloading">
-        <span></span>
-    </div>
-</div> -->
-
                 <div class="section-menu-left">
                     <div class="box-logo">
                         <a href="{{route('admin.index')}}" id="site-logo-inner">
-                            <img class="" id="logo_header_1" alt="" src="{{ asset('assets/images/logo.png') }}"
-                                data-light="{{ asset('assets/images/logo.png') }}" data-dark="{{ asset('assets/images/logo.png') }}">
+                            <img class="" id="logo_header_1" alt="" src=" {{-- {{ asset('assets/images/logo.png') }} --}}"
+                                data-light=" {{-- {{ asset('assets/images/logo.png') }} --}}" data-dark="{{-- {{ asset('assets/images/logo.png') }} --}}">
                         </a>
                         <div class="button-show-hide">
                             <i class="icon-menu-left"></i>
@@ -95,6 +88,7 @@
                                         </li>
                                     </ul>
                                 </li>
+                                
                                 <li class="menu-item has-children">
                                     <a href="javascript:void(0);" class="menu-item-button">
                                         <div class="icon"><i class="icon-layers"></i></div>
@@ -471,7 +465,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>    
     <script src="{{ asset('assets/admin/js/apexcharts/apexcharts.js') }}"></script>
     <script src="{{ asset('assets/admin/js/main.js') }}"></script>
-    <script>
+    {{-- <script>
         (function ($) {
 
             var tfLineChart = (function () {
@@ -568,7 +562,7 @@
 
             jQuery(window).on("resize", function () { });
         })(jQuery);
-    </script>
+    </script> --}}
      @stack('scripts')
 </body>
 </html>
