@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
+
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/shop/{product_slug}', [ShopController::class, 'product_details'])->name('shop.product.details'); 
@@ -53,6 +54,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account-orders', [UserController::class, 'orders'])->name('user.orders');
     Route::get('/account-order/{order_id}/details', [UserController::class, 'order_details'])->name('user.order.details');
     Route::put('/account-order/cancel', [UserController::class, 'cancel_order'])->name('user.order.cancel');
+    Route::get('/account-edit', [UserController::class, 'edit'])->name('user.edit');
+    Route::put('/account-update', [UserController::class, 'update'])->name('user.update');
 });
 
 Route::middleware(['auth', AuthAdmin::class])->group(function () {
